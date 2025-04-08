@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小㘵村智能养生 - 健康数据</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2E7D32;
+            --text-color: #333333;
+            --light-bg: #f8f9fa;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            padding-top: 76px;
+        }
+        
+        .navbar {
+            background-color: #000000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: #ffffff !important;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: #ffffff !important;
+            transition: var(--transition);
+            position: relative;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .nav-link i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .hero {
+            background-color: #000000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .dual-text {
+            margin-bottom: 2rem;
+        }
+        
+        .dual-text-large {
+            font-size: 4rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        
+        .dual-text-small {
+            font-size: 2rem;
+            color: var(--primary-color);
+            line-height: 1.3;
+        }
+        
+        .hero-buttons {
+            margin-top: 3rem;
+        }
+        
+        .hero-button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 0;
+            transition: var(--transition);
+        }
+        
+        .hero-button-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        .hero-button-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .hero-button-secondary {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+        }
+        
+        .hero-button-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .data-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .data-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .data-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .data-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .data-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .data-text {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--primary-color);
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+        
+        .footer {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 60px 0 20px;
+        }
+        
+        .footer h5 {
+            color: #ffffff;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer h5::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .footer p {
+            color: #cccccc;
+            line-height: 1.8;
+        }
+        
+        .footer a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer a:hover {
+            color: var(--primary-color);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            color: var(--primary-color);
+            background-color: rgba(76, 175, 80, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-leaf"></i>
+                小㘵村智能养生
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="fas fa-home"></i> 首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="health-data.html"><i class="fas fa-chart-line"></i> 健康数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ai-analysis.html"><i class="fas fa-brain"></i> AI分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html"><i class="fas fa-info-circle"></i> 关于我们</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10">
+                    <div class="dual-text">
+                        <div class="dual-text-large">您的健康数据，</div>
+                        <div class="dual-text-small">一目了然。</div>
+                    </div>
+                    <div class="dual-text">
+                        <div class="dual-text-large">让数据说话，</div>
+                        <div class="dual-text-small">为健康护航。</div>
+                    </div>
+                    <div class="hero-buttons mt-5">
+                        <a href="#data-overview" class="btn hero-button hero-button-primary">查看数据概览</a>
+                        <a href="#trend-analysis" class="btn hero-button hero-button-secondary">趋势分析</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据概览 -->
+    <section id="data-overview" class="py-5">
+        <div class="container">
+            <h2 class="section-title">数据概览</h2>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="data-card">
+                        <i class="fas fa-heartbeat data-icon"></i>
+                        <h3 class="data-title">心率</h3>
+                        <div class="data-value">75</div>
+                        <p class="data-text">次/分钟</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="data-card">
+                        <i class="fas fa-tint data-icon"></i>
+                        <h3 class="data-title">血压</h3>
+                        <div class="data-value">120/80</div>
+                        <p class="data-text">mmHg</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="data-card">
+                        <i class="fas fa-walking data-icon"></i>
+                        <h3 class="data-title">步数</h3>
+                        <div class="data-value">8,532</div>
+                        <p class="data-text">步</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="data-card">
+                        <i class="fas fa-moon data-icon"></i>
+                        <h3 class="data-title">睡眠</h3>
+                        <div class="data-value">7.5</div>
+                        <p class="data-text">小时</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 趋势分析 -->
+    <section id="trend-analysis" class="py-5">
+        <div class="container">
+            <h2 class="section-title">趋势分析</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">心率趋势</h3>
+                        <canvas id="heartRateChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">血压趋势</h3>
+                        <canvas id="bloodPressureChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">步数趋势</h3>
+                        <canvas id="stepsChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">睡眠趋势</h3>
+                        <canvas id="sleepChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>关于我们</h5>
+                    <p>小㘵村智能养生平台，致力于通过先进技术为村民提供专业的健康管理服务。</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-weibo"></i></a>
+                        <a href="#"><i class="fab fa-qq"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html">首页</a></li>
+                        <li><a href="health-data.html">健康数据</a></li>
+                        <li><a href="ai-analysis.html">AI分析</a></li>
+                        <li><a href="about.html">关于我们</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>联系我们</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i> 广东省广州市小㘵村</p>
+                    <p><i class="fas fa-phone me-2"></i> 020-12345678</p>
+                    <p><i class="fas fa-envelope me-2"></i> info@xiaobuhealth.com</p>
+                    <p><i class="fas fa-clock me-2"></i> 周一至周日 9:00-18:00</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 小㘵村智能养生. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // 心率趋势图
+        const heartRateCtx = document.getElementById('heartRateChart').getContext('2d');
+        new Chart(heartRateCtx, {
+            type: 'line',
+            data: {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [{
+                    label: '心率',
+                    data: [72, 75, 73, 76, 74, 78, 75],
+                    borderColor: '#4CAF50',
+                    tension: 0.4,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // 血压趋势图
+        const bloodPressureCtx = document.getElementById('bloodPressureChart').getContext('2d');
+        new Chart(bloodPressureCtx, {
+            type: 'line',
+            data: {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [{
+                    label: '收缩压',
+                    data: [120, 118, 122, 119, 121, 123, 120],
+                    borderColor: '#4CAF50',
+                    tension: 0.4,
+                    fill: false
+                }, {
+                    label: '舒张压',
+                    data: [80, 78, 82, 79, 81, 83, 80],
+                    borderColor: '#2E7D32',
+                    tension: 0.4,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // 步数趋势图
+        const stepsCtx = document.getElementById('stepsChart').getContext('2d');
+        new Chart(stepsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [{
+                    label: '步数',
+                    data: [7532, 8231, 7890, 8456, 8123, 9234, 8532],
+                    backgroundColor: '#4CAF50',
+                    borderColor: '#4CAF50',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // 睡眠趋势图
+        const sleepCtx = document.getElementById('sleepChart').getContext('2d');
+        new Chart(sleepCtx, {
+            type: 'line',
+            data: {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [{
+                    label: '睡眠时长',
+                    data: [7.2, 7.5, 7.0, 7.8, 7.3, 8.0, 7.5],
+                    borderColor: '#4CAF50',
+                    tension: 0.4,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
