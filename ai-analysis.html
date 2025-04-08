@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI健康分析 - 小㘵村智能养生</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #45a049;
+            --dark-color: #333;
+            --light-color: #f8f9fa;
+            --text-color: #555;
+            --transition: all 0.3s ease;
+            --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            --gradient-dark: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(0, 0, 0, 0.9) 100%);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            background-color: #f5f5f5;
+        }
+        
+        .hero {
+            background-color: #000000;
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-dark);
+            z-index: 1;
+        }
+        
+        .hero .container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .dual-text {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .dual-text::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .dual-text-large {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dual-text-small {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            line-height: 1.3;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chat-container {
+            background-color: #f8f9fa;
+            min-height: 60vh;
+            padding: 2rem 0;
+            position: relative;
+        }
+        
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+        
+        .chat-messages {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+            height: 60vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) #f0f0f0;
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 10px;
+        }
+        
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-user {
+            align-items: flex-end;
+        }
+        
+        .message-ai {
+            align-items: flex-start;
+        }
+        
+        .message-content {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .message-user .message-content {
+            background: var(--gradient-primary);
+            color: white;
+            border-bottom-right-radius: 0.2rem;
+        }
+        
+        .message-ai .message-content {
+            background-color: white;
+            color: var(--dark-color);
+            border-bottom-left-radius: 0.2rem;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .message-header i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .message-user .message-header i {
+            color: var(--primary-color);
+        }
+        
+        .message-ai .message-header i {
+            color: var(--secondary-color);
+        }
+        
+        .message-text {
+            line-height: 1.6;
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+        
+        .chat-input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+        
+        .chat-input {
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-input textarea {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            resize: none;
+            height: 60px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .chat-input textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        .chat-input button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            margin-left: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-input button i {
+            margin-right: 0.5rem;
+        }
+        
+        .chat-input button:hover {
+            background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chat-input button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .data-summary {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .data-summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: var(--primary-color);
+        }
+        
+        .data-summary h4 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .data-summary h4 i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+        
+        .data-item:hover {
+            background-color: rgba(76, 175, 80, 0.05);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            margin: -0.5rem -0.5rem 0.5rem -0.5rem;
+        }
+        
+        .data-item:last-child {
+            border-bottom: none;
+        }
+        
+        .data-label {
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .data-label i {
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .data-value {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .data-value i {
+            margin-left: 0.5rem;
+        }
+        
+        .data-value.good {
+            color: #28a745;
+        }
+        
+        .data-value.warning {
+            color: #ffc107;
+        }
+        
+        .data-value.danger {
+            color: #dc3545;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #6c757d;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .suggestion-chip {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            border-radius: 1.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+        
+        .suggestion-chip i {
+            margin-right: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .suggestion-chip:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .chart-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+        
+        .chart {
+            width: 100%;
+            height: 200px;
+        }
+        
+        .footer {
+            background-color: #000000;
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .footer h4 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .footer p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+        
+        .footer a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer a i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .footer a:hover {
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+        
+        @media (max-width: 768px) {
+            .dual-text-large {
+                font-size: 2rem;
+            }
+            
+            .dual-text-small {
+                font-size: 1.2rem;
+            }
+            
+            .message-content {
+                max-width: 90%;
+            }
+            
+            .chat-messages {
+                height: 50vh;
+            }
+            
+            .suggestion-chips {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-leaf"></i>
+                小㘵村智能养生
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="health-data.html">健康数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="ai-analysis.html">AI分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">关于我们</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10">
+                    <div class="dual-text">
+                        <div class="dual-text-large">AI智能分析，</div>
+                        <div class="dual-text-small">洞察健康密码。</div>
+                    </div>
+                    <div class="dual-text">
+                        <div class="dual-text-large">让AI成为您的私人健康顾问，</div>
+                        <div class="dual-text-small">始于对话。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 聊天界面 -->
+    <section class="chat-container">
+        <div class="container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- AI欢迎消息 -->
+                <div class="message message-ai">
+                    <div class="message-header">
+                        <i class="fas fa-brain"></i>
+                        <span>AI健康助手</span>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">
+                            您好！我是您的AI健康助手。我可以根据您的健康数据进行分析，回答您关于健康的问题，并提供个性化的健康建议。请问有什么可以帮到您的吗？
+                        </div>
+                        <div class="suggestion-chips">
+                            <div class="suggestion-chip" data-question="我的睡眠质量如何？">
+                                <i class="fas fa-moon"></i> 睡眠质量
+                            </div>
+                            <div class="suggestion-chip" data-question="我今天走了多少步？">
+                                <i class="fas fa-walking"></i> 步数统计
+                            </div>
+                            <div class="suggestion-chip" data-question="我的心率正常吗？">
+                                <i class="fas fa-heartbeat"></i> 心率分析
+                            </div>
+                            <div class="suggestion-chip" data-question="我的压力水平如何？">
+                                <i class="fas fa-brain"></i> 压力评估
+                            </div>
+                        </div>
+                        <div class="message-time">刚刚</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 聊天输入框 -->
+            <div class="chat-input-container">
+                <div class="chat-input">
+                    <textarea id="userInput" placeholder="请输入您的问题，例如：我的睡眠质量如何？" rows="3"></textarea>
+                    <button id="sendButton" type="button">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>发送</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>关于我们</h4>
+                    <p>小㘵村智能养生致力于通过人工智能技术，为村民提供便捷、专业的健康管理服务。</p>
+                </div>
+                <div class="col-md-4">
+                    <h4>快速链接</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html"><i class="fas fa-home"></i> 首页</a></li>
+                        <li><a href="health-data.html"><i class="fas fa-chart-line"></i> 健康数据</a></li>
+                        <li><a href="ai-analysis.html"><i class="fas fa-brain"></i> AI分析</a></li>
+                        <li><a href="about.html"><i class="fas fa-info-circle"></i> 关于我们</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>联系我们</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> 地址：小㘵村健康中心</a></li>
+                        <li><a href="tel:123-456-7890"><i class="fas fa-phone"></i> 电话：123-456-7890</a></li>
+                        <li><a href="mailto:contact@xiaobucun.com"><i class="fas fa-envelope"></i> 邮箱：contact@xiaobucun.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1)">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2024 小㘵村智能养生. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // DeepSeek API配置
+        const DEEPSEEK_CONFIG = {
+            apiKey: 'sk-39a5c98e14c74318ac56730d942cdb3f', // DeepSeek API密钥
+            apiEndpoint: 'https://api.deepseek.com/v1/chat/completions', // DeepSeek API端点
+            model: 'deepseek', // 使用的模型
+            temperature: 0.7, // 温度参数
+            maxTokens: 2000, // 最大生成token数
+        };
+
+        // 健康数据模拟
+        const healthData = {
+            steps: [8000, 10000, 7500, 12000, 9000, 11000, 8500],
+            sleep: [7.5, 8, 6.5, 7, 8.5, 7.5, 8],
+            heartRate: [75, 72, 78, 70, 73, 76, 74],
+            stress: [45, 40, 60, 35, 50, 55, 42],
+            weight: [68, 67.8, 67.5, 67.2, 67, 66.8, 66.5]
+        };
+
+        // 初始化聊天界面
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            
+            // 添加建议问题点击事件
+            document.querySelectorAll('.suggestion-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const question = this.getAttribute('data-question');
+                    userInput.value = question;
+                    userInput.focus();
+                });
+            });
+            
+            // 发送消息
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message) {
+                    // 添加用户消息
+                    addMessage(message, 'user');
+                    
+                    // 清空输入框
+                    userInput.value = '';
+                    
+                    // 显示AI正在输入
+                    showTypingIndicator();
+                    
+                    // 调用DeepSeek API获取回答
+                    getDeepSeekResponse(message)
+                        .then(response => {
+                            // 移除输入指示器
+                            removeTypingIndicator();
+                            
+                            // 添加AI回答
+                            if (response.chartData) {
+                                addAIResponseWithChart(response.text, response.chartData);
+                            } else {
+                                addMessage(response.text, 'ai');
+                            }
+                            
+                            // 添加新的建议问题
+                            addAdditionalSuggestions();
+                        })
+                        .catch(error => {
+                            // 移除输入指示器
+                            removeTypingIndicator();
+                            
+                            // 显示错误消息
+                            addMessage('抱歉，我遇到了一些问题。请稍后再试。', 'ai');
+                            console.error('DeepSeek API错误:', error);
+                        });
+                }
+            }
+            
+            // 调用DeepSeek API获取回答
+            async function getDeepSeekResponse(message) {
+                try {
+                    // 检查是否有关键词匹配
+                    const commonResponse = getAIResponse(message);
+                    if (commonResponse) {
+                        return commonResponse;
+                    }
+                    
+                    // 如果没有匹配的关键词，调用DeepSeek API
+                    const response = await fetch(DEEPSEEK_CONFIG.apiEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${DEEPSEEK_CONFIG.apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: DEEPSEEK_CONFIG.model,
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: '你是一个专业的健康顾问，基于用户的健康数据提供分析和建议。'
+                                },
+                                {
+                                    role: 'user',
+                                    content: `我的健康数据如下：\n步数：${healthData.steps.join(', ')}\n睡眠：${healthData.sleep.join(', ')}小时\n心率：${healthData.heartRate.join(', ')}次/分\n压力：${healthData.stress.join(', ')}\n体重：${healthData.weight.join(', ')}kg\n\n我的问题是：${message}`
+                                }
+                            ],
+                            temperature: DEEPSEEK_CONFIG.temperature,
+                            max_tokens: DEEPSEEK_CONFIG.maxTokens
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`DeepSeek API错误: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // 检查是否需要生成图表
+                    const chartData = generateChartData(message, data.choices[0].message.content);
+                    
+                    return {
+                        text: data.choices[0].message.content,
+                        chartData: chartData
+                    };
+                } catch (error) {
+                    console.error('调用DeepSeek API时出错:', error);
+                    throw error;
+                }
+            }
+            
+            // 生成图表数据
+            function generateChartData(message, response) {
+                // 检查回答中是否包含数据相关的内容
+                if (message.includes('睡眠') || message.includes('睡眠质量')) {
+                    return {
+                        type: 'bar',
+                        data: {
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            datasets: [{
+                                label: '睡眠时长(小时)',
+                                data: healthData.sleep,
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 10
+                                }
+                            }
+                        }
+                    };
+                } else if (message.includes('步数') || message.includes('运动')) {
+                    return {
+                        type: 'line',
+                        data: {
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            datasets: [{
+                                label: '每日步数',
+                                data: healthData.steps,
+                                fill: false,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    };
+                } else if (message.includes('心率')) {
+                    return {
+                        type: 'line',
+                        data: {
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            datasets: [{
+                                label: '心率(次/分)',
+                                data: healthData.heartRate,
+                                fill: false,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    min: 60,
+                                    max: 100
+                                }
+                            }
+                        }
+                    };
+                } else if (message.includes('压力') || message.includes('压力水平')) {
+                    return {
+                        type: 'line',
+                        data: {
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            datasets: [{
+                                label: '压力指数',
+                                data: healthData.stress,
+                                fill: false,
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    };
+                } else if (message.includes('体重') || message.includes('体重管理')) {
+                    return {
+                        type: 'line',
+                        data: {
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            datasets: [{
+                                label: '体重(kg)',
+                                data: healthData.weight,
+                                fill: false,
+                                borderColor: 'rgba(255, 159, 64, 1)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: false
+                                }
+                            }
+                        }
+                    };
+                } else if (message.includes('健康') || message.includes('整体') || message.includes('综合')) {
+                    return {
+                        type: 'radar',
+                        data: {
+                            labels: ['步数', '睡眠', '心率', '压力', '体重'],
+                            datasets: [{
+                                label: '健康指标',
+                                data: [
+                                    healthData.steps[healthData.steps.length - 1] / 12000 * 100,
+                                    healthData.sleep[healthData.sleep.length - 1] / 8 * 100,
+                                    100 - Math.abs(healthData.heartRate[healthData.heartRate.length - 1] - 75) / 25 * 100,
+                                    100 - healthData.stress[healthData.stress.length - 1],
+                                    100 - Math.abs(healthData.weight[healthData.weight.length - 1] - 65) / 10 * 100
+                                ],
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                r: {
+                                    angleLines: {
+                                        display: true
+                                    },
+                                    suggestedMin: 0,
+                                    suggestedMax: 100
+                                }
+                            }
+                        }
+                    };
+                }
+                
+                return null;
+            }
+            
+            // 显示AI正在输入
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message message-ai';
+                typingDiv.id = 'typingIndicator';
+                
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'message-header';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-brain';
+                
+                const headerText = document.createElement('span');
+                headerText.textContent = 'AI健康助手';
+                
+                headerDiv.appendChild(icon);
+                headerDiv.appendChild(headerText);
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'typing-indicator';
+                
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'typing-dot';
+                    typingIndicator.appendChild(dot);
+                }
+                
+                contentDiv.appendChild(typingIndicator);
+                
+                typingDiv.appendChild(headerDiv);
+                typingDiv.appendChild(contentDiv);
+                
+                chatMessages.appendChild(typingDiv);
+                
+                // 滚动到底部
+                scrollToBottom();
+            }
+            
+            // 移除AI正在输入
+            function removeTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            // 添加消息到聊天界面
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message message-${sender}`;
+                
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'message-header';
+                
+                const icon = document.createElement('i');
+                icon.className = sender === 'user' ? 'fas fa-user' : 'fas fa-brain';
+                
+                const headerText = document.createElement('span');
+                headerText.textContent = sender === 'user' ? '您' : 'AI健康助手';
+                
+                headerDiv.appendChild(icon);
+                headerDiv.appendChild(headerText);
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                const messageText = document.createElement('div');
+                messageText.className = 'message-text';
+                messageText.innerHTML = text;
+                
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                timeDiv.textContent = '刚刚';
+                
+                contentDiv.appendChild(messageText);
+                contentDiv.appendChild(timeDiv);
+                
+                messageDiv.appendChild(headerDiv);
+                messageDiv.appendChild(contentDiv);
+                
+                chatMessages.appendChild(messageDiv);
+                
+                // 滚动到底部
+                scrollToBottom();
+            }
+            
+            // 添加带图表的AI回答
+            function addAIResponseWithChart(text, chartData) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message message-ai';
+                
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'message-header';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-brain';
+                
+                const headerText = document.createElement('span');
+                headerText.textContent = 'AI健康助手';
+                
+                headerDiv.appendChild(icon);
+                headerDiv.appendChild(headerText);
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                const messageText = document.createElement('div');
+                messageText.className = 'message-text';
+                messageText.innerHTML = text;
+                
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'chart-container';
+                
+                const chartTitle = document.createElement('div');
+                chartTitle.className = 'chart-title';
+                chartTitle.textContent = '数据可视化';
+                
+                const chartCanvas = document.createElement('canvas');
+                chartCanvas.className = 'chart';
+                
+                chartContainer.appendChild(chartTitle);
+                chartContainer.appendChild(chartCanvas);
+                
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                timeDiv.textContent = '刚刚';
+                
+                contentDiv.appendChild(messageText);
+                contentDiv.appendChild(chartContainer);
+                contentDiv.appendChild(timeDiv);
+                
+                messageDiv.appendChild(headerDiv);
+                messageDiv.appendChild(contentDiv);
+                
+                chatMessages.appendChild(messageDiv);
+                
+                // 创建图表
+                const ctx = chartCanvas.getContext('2d');
+                new Chart(ctx, {
+                    type: chartData.type,
+                    data: chartData.data,
+                    options: chartData.options
+                });
+                
+                // 滚动到底部
+                scrollToBottom();
+            }
+            
+            // 滚动到底部
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 添加额外的建议问题
+            function addAdditionalSuggestions() {
+                const lastMessage = chatMessages.lastElementChild;
+                if (lastMessage && lastMessage.classList.contains('message-ai')) {
+                    const contentDiv = lastMessage.querySelector('.message-content');
+                    if (contentDiv && !contentDiv.querySelector('.suggestion-chips')) {
+                        const suggestionChips = document.createElement('div');
+                        suggestionChips.className = 'suggestion-chips';
+                        
+                        const suggestions = [
+                            { icon: 'fa-weight', text: '如何管理体重？' },
+                            { icon: 'fa-heartbeat', text: '我的整体健康状况如何？' },
+                            { icon: 'fa-moon', text: '如何改善睡眠质量？' },
+                            { icon: 'fa-brain', text: '如何降低压力水平？' }
+                        ];
+                        
+                        suggestions.forEach(suggestion => {
+                            const chip = document.createElement('div');
+                            chip.className = 'suggestion-chip';
+                            chip.setAttribute('data-question', suggestion.text);
+                            
+                            const icon = document.createElement('i');
+                            icon.className = `fas ${suggestion.icon}`;
+                            
+                            const text = document.createElement('span');
+                            text.textContent = suggestion.text;
+                            
+                            chip.appendChild(icon);
+                            chip.appendChild(text);
+                            
+                            chip.addEventListener('click', function() {
+                                const question = this.getAttribute('data-question');
+                                userInput.value = question;
+                                userInput.focus();
+                            });
+                            
+                            suggestionChips.appendChild(chip);
+                        });
+                        
+                        contentDiv.appendChild(suggestionChips);
+                    }
+                }
+            }
+            
+            // 获取AI回答
+            function getAIResponse(message) {
+                // 常见问题回答
+                const commonResponses = {
+                    '睡眠': {
+                        text: `根据您的睡眠数据，您最近一周的平均睡眠时长为${(healthData.sleep.reduce((a, b) => a + b, 0) / healthData.sleep.length).toFixed(1)}小时。\n\n睡眠质量分析：\n- 您的睡眠时长基本符合健康标准（7-9小时）\n- 睡眠时间有一定的波动，建议保持规律的作息时间\n- 建议在睡前避免使用电子设备，保持安静的环境\n\n改善建议：\n1. 建立固定的睡眠时间表\n2. 睡前1小时避免使用手机和电脑\n3. 保持卧室安静、黑暗和凉爽\n4. 避免睡前摄入咖啡因和酒精`,
+                        chartData: {
+                            type: 'bar',
+                            data: {
+                                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                                datasets: [{
+                                    label: '睡眠时长(小时)',
+                                    data: healthData.sleep,
+                                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 10
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '步数': {
+                        text: `根据您的步数数据，您最近一周的平均步数为${(healthData.steps.reduce((a, b) => a + b, 0) / healthData.steps.length).toFixed(0)}步。\n\n步数分析：\n- 您的步数基本达到了健康标准（每天8000-10000步）\n- 步数有一定的波动，建议保持规律的运动习惯\n- 周末的步数明显高于工作日，说明您在工作日可能需要增加活动量\n\n改善建议：\n1. 尝试在工作日增加步行时间，如午休时散步\n2. 使用计步器或手机应用跟踪每日步数\n3. 设定每日步数目标，并逐步提高\n4. 考虑参加步行团体活动，增加运动乐趣`,
+                        chartData: {
+                            type: 'line',
+                            data: {
+                                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                                datasets: [{
+                                    label: '每日步数',
+                                    data: healthData.steps,
+                                    fill: false,
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '心率': {
+                        text: `根据您的心率数据，您最近一周的平均心率为${(healthData.heartRate.reduce((a, b) => a + b, 0) / healthData.heartRate.length).toFixed(1)}次/分。\n\n心率分析：\n- 您的心率在正常范围内（60-100次/分）\n- 心率有一定的波动，这是正常的\n- 心率与您的活动量和压力水平相关\n\n改善建议：\n1. 保持规律的有氧运动，有助于降低静息心率\n2. 学习放松技巧，如深呼吸和冥想\n3. 避免过度摄入咖啡因和酒精\n4. 定期监测心率变化，了解自己的身体状况`,
+                        chartData: {
+                            type: 'line',
+                            data: {
+                                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                                datasets: [{
+                                    label: '心率(次/分)',
+                                    data: healthData.heartRate,
+                                    fill: false,
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: false,
+                                        min: 60,
+                                        max: 100
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '压力': {
+                        text: `根据您的压力数据，您最近一周的平均压力指数为${(healthData.stress.reduce((a, b) => a + b, 0) / healthData.stress.length).toFixed(1)}。\n\n压力分析：\n- 您的压力水平处于中等范围\n- 压力指数有一定的波动，这是正常的\n- 压力与您的工作、生活和睡眠质量相关\n\n改善建议：\n1. 学习压力管理技巧，如深呼吸、冥想和瑜伽\n2. 保持规律的作息时间，确保充足的睡眠\n3. 增加户外活动和社交互动\n4. 如果压力持续高水平，考虑咨询专业人士`,
+                        chartData: {
+                            type: 'line',
+                            data: {
+                                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                                datasets: [{
+                                    label: '压力指数',
+                                    data: healthData.stress,
+                                    fill: false,
+                                    borderColor: 'rgba(153, 102, 255, 1)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 100
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '体重': {
+                        text: `根据您的体重数据，您最近一周的体重变化如下：\n\n体重分析：\n- 您的体重呈下降趋势，从${healthData.weight[0]}kg降至${healthData.weight[healthData.weight.length-1]}kg\n- 体重变化较为稳定，没有剧烈波动\n- 体重管理效果良好\n\n改善建议：\n1. 继续保持健康的饮食和运动习惯\n2. 设定合理的体重目标，避免过度减重\n3. 记录饮食日记，了解自己的饮食习惯\n4. 定期测量体重，但不要过于频繁`,
+                        chartData: {
+                            type: 'line',
+                            data: {
+                                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                                datasets: [{
+                                    label: '体重(kg)',
+                                    data: healthData.weight,
+                                    fill: false,
+                                    borderColor: 'rgba(255, 159, 64, 1)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: false
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '健康': {
+                        text: `根据您的健康数据综合分析：\n\n整体健康状况：\n- 您的步数、睡眠、心率、压力和体重指标总体良好\n- 各项指标有一定的波动，这是正常的\n- 您的健康管理习惯良好，继续保持\n\n改善建议：\n1. 继续保持规律的运动和作息习惯\n2. 关注压力管理，学习放松技巧\n3. 保持均衡的饮食，注意营养摄入\n4. 定期进行健康检查，了解自己的身体状况\n\n如果您有特定的健康问题或目标，请告诉我，我可以提供更具体的建议。`,
+                        chartData: {
+                            type: 'radar',
+                            data: {
+                                labels: ['步数', '睡眠', '心率', '压力', '体重'],
+                                datasets: [{
+                                    label: '健康指标',
+                                    data: [
+                                        healthData.steps[healthData.steps.length - 1] / 12000 * 100,
+                                        healthData.sleep[healthData.sleep.length - 1] / 8 * 100,
+                                        100 - Math.abs(healthData.heartRate[healthData.heartRate.length - 1] - 75) / 25 * 100,
+                                        100 - healthData.stress[healthData.stress.length - 1],
+                                        100 - Math.abs(healthData.weight[healthData.weight.length - 1] - 65) / 10 * 100
+                                    ],
+                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                                    pointBorderColor: '#fff',
+                                    pointHoverBackgroundColor: '#fff',
+                                    pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    r: {
+                                        angleLines: {
+                                            display: true
+                                        },
+                                        suggestedMin: 0,
+                                        suggestedMax: 100
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                
+                // 检查消息中是否包含关键词
+                for (const keyword in commonResponses) {
+                    if (message.includes(keyword)) {
+                        return commonResponses[keyword];
+                    }
+                }
+                
+                // 如果没有匹配的关键词，返回null，将调用DeepSeek API
+                return null;
+            }
+            
+            // 添加事件监听器
+            sendButton.addEventListener('click', sendMessage);
+            
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // 自动聚焦输入框
+            userInput.focus();
+        });
+    </script>
+</body>
+</html> 
