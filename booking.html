@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康小㘵 - 民宿订购</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2E7D32;
+            --text-color: #333333;
+            --light-bg: #f8f9fa;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            padding-top: 76px;
+        }
+        
+        .navbar {
+            background-color: #000000;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: #ffffff !important;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .navbar-brand:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .navbar-brand i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: transform 0.4s ease;
+        }
+        
+        .navbar-brand:hover i {
+            transform: rotate(15deg) scale(1.2);
+        }
+        
+        .nav-item {
+            margin: 0 5px;
+            position: relative;
+        }
+        
+        .nav-link {
+            color: #ffffff !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.6s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-link.active {
+            color: #ffffff !important;
+            background-color: var(--primary-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+        }
+        
+        .nav-link.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.6);
+        }
+        
+        .nav-link i {
+            color: #ffffff;
+            font-size: 1.2rem;
+            transition: transform 0.4s ease;
+        }
+        
+        .nav-link:hover i {
+            transform: translateY(-2px) scale(1.2);
+            color: var(--primary-color);
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--primary-color);
+        }
+        
+        .footer {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 60px 0 20px;
+        }
+        
+        .footer h5 {
+            color: #ffffff;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer h5::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .footer p {
+            color: #cccccc;
+            line-height: 1.8;
+        }
+        
+        .footer a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer a:hover {
+            color: var(--primary-color);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            color: var(--primary-color);
+            background-color: rgba(76, 175, 80, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #999999;
+        }
+        
+        /* 订购页面特定样式 */
+        .booking-hero {
+            background-color: #f5f5f5;
+            padding: 80px 0;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://via.placeholder.com/1920x600/333/fff?text=健康小㘵民宿');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .booking-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .booking-hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+        
+        .room-card {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            margin-bottom: 30px;
+        }
+        
+        .room-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .room-img {
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .room-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .room-amenity {
+            font-size: 0.8rem;
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--primary-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        .room-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .room-original-price {
+            font-size: 1rem;
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .booking-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-label {
+            font-weight: 500;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+        }
+        
+        .btn-book {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 12px 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .btn-book:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+        }
+        
+        .promotion-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #FF5722;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: 500;
+            z-index: 1;
+        }
+        
+        .date-picker {
+            background-color: white;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            
+            .navbar {
+                padding: 0.5rem 0;
+            }
+            
+            .navbar-brand {
+                font-size: 1rem;
+                padding: 6px 10px;
+            }
+            
+            .navbar-brand i {
+                font-size: 1.2rem;
+            }
+            
+            .navbar-toggler {
+                border: none;
+                background-color: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                padding: 6px 10px;
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: none;
+            }
+            
+            .navbar-toggler-icon {
+                width: 1.2rem;
+                height: 1.2rem;
+            }
+            
+            .navbar-collapse {
+                margin-top: 10px;
+            }
+            
+            .navbar-nav {
+                background-color: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                padding: 10px;
+            }
+            
+            .nav-item {
+                margin: 5px 0;
+                width: 100%;
+            }
+            
+            .nav-link {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+            
+            .booking-hero {
+                padding: 50px 0;
+            }
+            
+            .booking-hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .booking-hero p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .room-card {
+                margin-bottom: 20px;
+            }
+            
+            .room-price {
+                font-size: 1.3rem;
+            }
+            
+            .room-original-price {
+                font-size: 0.9rem;
+            }
+            
+            .room-amenities {
+                flex-wrap: wrap;
+            }
+            
+            .btn-book {
+                width: 100%;
+                padding: 8px 15px;
+                margin-top: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .booking-form {
+                padding: 15px;
+            }
+            
+            .features {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            
+            .feature {
+                width: 48%;
+                margin-bottom: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .footer {
+                padding: 40px 0 20px;
+            }
+            
+            .footer h5 {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* 小屏幕手机优化 */
+        @media (max-width: 576px) {
+            .booking-hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .booking-hero p {
+                font-size: 0.9rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .card-title {
+                font-size: 1.2rem;
+            }
+            
+            .room-amenity {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
+            
+            .card-text {
+                font-size: 0.9rem;
+            }
+            
+            .feature {
+                width: 100%;
+            }
+            
+            .package-card {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-leaf"></i>
+                健康小㘵
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="fas fa-home"></i> 首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="health-data.html"><i class="fas fa-chart-line"></i> 健康数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ai-analysis.html"><i class="fas fa-brain"></i> AI分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#homestay"><i class="fas fa-home"></i> 养生民宿</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="booking.html"><i class="fas fa-calendar-alt"></i> 在线订购</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="booking-hero">
+        <div class="container">
+            <h1>健康养生民宿预订</h1>
+            <p>选择适合您的健康住宿，享受优质服务和优惠价格，开启健康生活方式</p>
+            <a href="#rooms" class="btn btn-lg btn-success">查看房型</a>
+        </div>
+    </section>
+
+    <!-- 房间列表 -->
+    <section id="rooms" class="py-5">
+        <div class="container">
+            <h2 class="section-title">可预订房型</h2>
+            
+            <div class="row">
+                <!-- 森林静养套房 -->
+                <div class="col-md-4">
+                    <div class="card room-card">
+                        <span class="promotion-badge">限时8折</span>
+                        <img src="https://via.placeholder.com/600x400/4CAF50/fff?text=森林静养套房" class="card-img-top room-img" alt="森林静养套房">
+                        <div class="card-body">
+                            <h5 class="card-title">森林静养套房</h5>
+                            <div class="room-amenities">
+                                <span class="room-amenity"><i class="fas fa-expand-arrows-alt"></i> 30-40㎡</span>
+                                <span class="room-amenity"><i class="fas fa-user"></i> 适合1-2人</span>
+                                <span class="room-amenity"><i class="fas fa-bed"></i> 单床/双床</span>
+                                <span class="room-amenity"><i class="fas fa-tree"></i> 森林景观</span>
+                                <span class="room-amenity"><i class="fas fa-moon"></i> 睡眠监测</span>
+                            </div>
+                            <p class="card-text">远离喧嚣，面向自然林区，提供基础睡眠监测服务和天然香薰，帮助您改善睡眠质量，享受宁静休憩时光。</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <span class="room-price">¥258</span>
+                                    <span class="room-original-price ms-2">¥322</span>
+                                    <small class="d-block">每晚/含早</small>
+                                </div>
+                                <a href="#booking-form" class="btn btn-success btn-book">立即预订</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 水景康养套房 -->
+                <div class="col-md-4">
+                    <div class="card room-card">
+                        <span class="promotion-badge">会员9折</span>
+                        <img src="https://via.placeholder.com/600x400/2196F3/fff?text=水景康养套房" class="card-img-top room-img" alt="水景康养套房">
+                        <div class="card-body">
+                            <h5 class="card-title">水景康养套房</h5>
+                            <div class="room-amenities">
+                                <span class="room-amenity"><i class="fas fa-expand-arrows-alt"></i> 40-50㎡</span>
+                                <span class="room-amenity"><i class="fas fa-user"></i> 适合2-3人</span>
+                                <span class="room-amenity"><i class="fas fa-bed"></i> 大床/双床</span>
+                                <span class="room-amenity"><i class="fas fa-water"></i> 池景阳台</span>
+                                <span class="room-amenity"><i class="fas fa-heartbeat"></i> 心率监测</span>
+                            </div>
+                            <p class="card-text">俯瞰恬静水景，配备简易心率监测设备，提供公共足浴区使用资格和15分钟免费按摩服务，帮助您缓解疲劳。</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <span class="room-price">¥358</span>
+                                    <span class="room-original-price ms-2">¥398</span>
+                                    <small class="d-block">每晚/含早</small>
+                                </div>
+                                <a href="#booking-form" class="btn btn-success btn-book">立即预订</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 膳食调养别墅 -->
+                <div class="col-md-4">
+                    <div class="card room-card">
+                        <span class="promotion-badge">新客7.5折</span>
+                        <img src="https://via.placeholder.com/600x400/FF9800/fff?text=膳食调养别墅" class="card-img-top room-img" alt="膳食调养别墅">
+                        <div class="card-body">
+                            <h5 class="card-title">膳食调养别墅</h5>
+                            <div class="room-amenities">
+                                <span class="room-amenity"><i class="fas fa-expand-arrows-alt"></i> 60-80㎡</span>
+                                <span class="room-amenity"><i class="fas fa-user"></i> 适合3-4人</span>
+                                <span class="room-amenity"><i class="fas fa-bed"></i> 多床型可选</span>
+                                <span class="room-amenity"><i class="fas fa-utensils"></i> 简易厨房</span>
+                                <span class="room-amenity"><i class="fas fa-seedling"></i> 小院</span>
+                            </div>
+                            <p class="card-text">配备简易厨房和小院，提供本地当季食材，赠送一次营养师膳食指导，让您在旅行中也能自己动手制作健康美食。</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <span class="room-price">¥458</span>
+                                    <span class="room-original-price ms-2">¥610</span>
+                                    <small class="d-block">每晚/含早</small>
+                                </div>
+                                <a href="#booking-form" class="btn btn-success btn-book">立即预订</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <p class="text-muted"><small>*价格仅供参考，节假日价格可能有所浮动，会员可享受额外折扣</small></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 预订表单 -->
+    <section id="booking-form" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title">在线预订</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="booking-info">
+                        <h4>预订须知</h4>
+                        <ul>
+                            <li><i class="fas fa-info-circle"></i> 入住时间为下午14:00后，退房时间为次日12:00前</li>
+                            <li><i class="fas fa-info-circle"></i> 预订确认后将收到短信和邮件通知</li>
+                            <li><i class="fas fa-info-circle"></i> 儿童入住政策：6岁以下儿童免费，需与大人同住</li>
+                            <li><i class="fas fa-info-circle"></i> 可免费取消政策：入住前48小时取消不收取费用</li>
+                            <li><i class="fas fa-info-circle"></i> 若有任何特殊要求，请在备注中说明</li>
+                        </ul>
+                        <h4 class="mt-4">健康民宿特色</h4>
+                        <div class="features">
+                            <div class="feature">
+                                <i class="fas fa-wifi"></i>
+                                <span>全屋WiFi</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-dumbbell"></i>
+                                <span>健身房</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-spa"></i>
+                                <span>养生SPA</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-utensils"></i>
+                                <span>健康餐厅</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-hiking"></i>
+                                <span>健走路线</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-head-side-mask"></i>
+                                <span>清洁消毒</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-heartbeat"></i>
+                                <span>健康监测</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-leaf"></i>
+                                <span>有机用品</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <form class="booking-form">
+                        <div class="form-group mb-3">
+                            <label for="room-type">选择房型</label>
+                            <select class="form-control" id="room-type" required>
+                                <option value="">请选择房型</option>
+                                <option value="forest">森林静养套房</option>
+                                <option value="water">水景康养套房</option>
+                                <option value="villa">膳食调养别墅</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="check-in-date">入住日期</label>
+                                    <input type="date" class="form-control" id="check-in-date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="check-out-date">离店日期</label>
+                                    <input type="date" class="form-control" id="check-out-date" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="guests">入住人数</label>
+                                    <select class="form-control" id="guests" required>
+                                        <option value="1">1人</option>
+                                        <option value="2" selected>2人</option>
+                                        <option value="3">3人</option>
+                                        <option value="4">4人</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="phone">联系电话</label>
+                                    <input type="tel" class="form-control" id="phone" placeholder="用于接收预订确认" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="name">姓名</label>
+                            <input type="text" class="form-control" id="name" placeholder="请输入预订人姓名" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="email">邮箱</label>
+                            <input type="email" class="form-control" id="email" placeholder="用于接收预订确认" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="special-requests">特殊要求（可选）</label>
+                            <textarea class="form-control" id="special-requests" rows="3" placeholder="如有其他特殊需求请在此说明"></textarea>
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="health-data-consent">
+                                <label class="form-check-label" for="health-data-consent">
+                                    我同意将我的健康数据用于提供个性化住宿体验（可选）
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100">提交预订</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 推荐套餐 -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="section-title">健康体验套餐</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card package-card">
+                        <div class="card-body">
+                            <h5 class="card-title">深度睡眠体验</h5>
+                            <p class="package-price">¥99/人次</p>
+                            <ul class="package-features">
+                                <li>专业睡眠质量评估</li>
+                                <li>助眠香薰疗法</li>
+                                <li>舒压按摩服务</li>
+                                <li>睡眠环境个性化调整</li>
+                            </ul>
+                            <button class="btn btn-outline-success w-100">添加到预订</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card package-card">
+                        <div class="card-body">
+                            <h5 class="card-title">营养膳食规划</h5>
+                            <p class="package-price">¥158/人次</p>
+                            <ul class="package-features">
+                                <li>个人体质评估</li>
+                                <li>营养师一对一指导</li>
+                                <li>有机食材DIY烹饪课</li>
+                                <li>个性化膳食方案</li>
+                            </ul>
+                            <button class="btn btn-outline-success w-100">添加到预订</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card package-card">
+                        <div class="card-body">
+                            <h5 class="card-title">活力运动计划</h5>
+                            <p class="package-price">¥128/人次</p>
+                            <ul class="package-features">
+                                <li>专属健走路线规划</li>
+                                <li>晨间太极/瑜伽课</li>
+                                <li>心率监测与运动建议</li>
+                                <li>森林浴体验</li>
+                            </ul>
+                            <button class="btn btn-outline-success w-100">添加到预订</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>关于我们</h5>
+                    <p>健康民宿是一家专注于健康生活方式的住宿品牌，致力于为用户提供融合健康管理的精品住宿体验。</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>快速链接</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">首页</a></li>
+                        <li><a href="health-data.html">健康数据</a></li>
+                        <li><a href="ai-analysis.html">AI分析</a></li>
+                        <li><a href="booking.html">民宿预订</a></li>
+                        <li><a href="#">关于我们</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>联系我们</h5>
+                    <address>
+                        <p><i class="fas fa-map-marker-alt"></i> 北京市朝阳区健康路100号</p>
+                        <p><i class="fas fa-phone"></i> 400-123-4567</p>
+                        <p><i class="fas fa-envelope"></i> contact@healthstay.com</p>
+                    </address>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p class="copyright">© 2023 健康民宿预订系统. 保留所有权利.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 预订脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置日期默认值
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const formatDate = date => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            document.getElementById('check-in-date').value = formatDate(today);
+            document.getElementById('check-out-date').value = formatDate(tomorrow);
+            
+            // 预订表单提交
+            document.querySelector('.booking-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const roomType = document.getElementById('room-type').value;
+                const checkIn = document.getElementById('check-in-date').value;
+                const checkOut = document.getElementById('check-out-date').value;
+                const guests = document.getElementById('guests').value;
+                const name = document.getElementById('name').value;
+                
+                // 简单验证
+                if (!roomType || !checkIn || !checkOut || !name) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+                
+                // 日期验证
+                const checkInDate = new Date(checkIn);
+                const checkOutDate = new Date(checkOut);
+                
+                if (checkInDate >= checkOutDate) {
+                    alert('离店日期必须晚于入住日期');
+                    return;
+                }
+                
+                // 模拟预订成功
+                alert(`${name}，您好！您的预订已提交，我们将尽快确认。预订信息：${roomType}，入住日期：${checkIn}，离店日期：${checkOut}，入住人数：${guests}人`);
+                
+                // 实际应用中这里应该发送到服务器
+            });
+            
+            // 立即预订按钮点击事件
+            document.querySelectorAll('.btn-book').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 获取房型并设置到表单
+                    const roomCard = this.closest('.room-card');
+                    const roomTitle = roomCard.querySelector('.card-title').textContent;
+                    
+                    const roomTypeSelect = document.getElementById('room-type');
+                    for(let i = 0; i < roomTypeSelect.options.length; i++) {
+                        if(roomTypeSelect.options[i].text.includes(roomTitle)) {
+                            roomTypeSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    // 滚动到表单
+                    document.getElementById('booking-form').scrollIntoView({behavior: 'smooth'});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

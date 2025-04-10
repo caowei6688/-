@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康小㘵 - AI分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2E7D32;
+            --text-color: #333333;
+            --light-bg: #f8f9fa;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            padding-top: 76px;
+        }
+        
+        .navbar {
+            background-color: #000000;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: #ffffff !important;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .navbar-brand:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .navbar-brand i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: transform 0.4s ease;
+        }
+        
+        .navbar-brand:hover i {
+            transform: rotate(15deg) scale(1.2);
+        }
+        
+        .nav-item {
+            margin: 0 5px;
+            position: relative;
+        }
+        
+        .nav-link {
+            color: #ffffff !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.6s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-link.active {
+            color: #ffffff !important;
+            background-color: var(--primary-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+        }
+        
+        .nav-link.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.6);
+        }
+        
+        .nav-link i {
+            color: #ffffff;
+            font-size: 1.2rem;
+            transition: transform 0.4s ease;
+        }
+        
+        .nav-link:hover i {
+            transform: translateY(-2px) scale(1.2);
+            color: var(--primary-color);
+        }
+        
+        /* Perspective Split Text Menu Animation 相关样式 */
+        .nav-text-container {
+            position: relative;
+            display: inline-block;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+        
+        .nav-text {
+            display: block;
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .nav-text.static {
+            transform-origin: bottom;
+            opacity: 1;
+        }
+        
+        .nav-text.dynamic {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: top;
+            transform: rotateX(-90deg);
+            opacity: 0;
+            color: var(--primary-color);
+        }
+        
+        .nav-link.perspective-active .nav-text.static {
+            transform: rotateX(90deg);
+            opacity: 0;
+        }
+        
+        .nav-link.perspective-active .nav-text.dynamic {
+            transform: rotateX(0);
+            opacity: 1;
+        }
+        
+        .nav-link i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-link.perspective-active i {
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .hero {
+            background-color: #000000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .dual-text {
+            margin-bottom: 2rem;
+        }
+        
+        .dual-text-large {
+            font-size: 4rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        
+        .dual-text-small {
+            font-size: 2rem;
+            color: var(--primary-color);
+            line-height: 1.3;
+        }
+        
+        .hero-buttons {
+            margin-top: 3rem;
+        }
+        
+        .hero-button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 0;
+            transition: var(--transition);
+        }
+        
+        .hero-button-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        .hero-button-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .hero-button-secondary {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+        }
+        
+        .hero-button-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .analysis-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .analysis-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .analysis-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .analysis-text {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--primary-color);
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+        
+        .footer {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 60px 0 20px;
+        }
+        
+        .footer h5 {
+            color: #ffffff;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer h5::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .footer p {
+            color: #cccccc;
+            line-height: 1.8;
+        }
+        
+        .footer a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer a:hover {
+            color: var(--primary-color);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #999999;
+        }
+        
+        /* 问答界面样式 */
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: rgba(76, 175, 80, 0.05);
+            border-radius: 10px;
+            max-height: 500px;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            max-width: 85%;
+        }
+        
+        .message-user {
+            margin-left: auto;
+        }
+        
+        .message-ai {
+            margin-right: auto;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .message-header i {
+            color: var(--primary-color);
+        }
+        
+        .message-content {
+            padding: 15px;
+            border-radius: 10px;
+            background-color: white;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            white-space: pre-line;
+        }
+        
+        .message-time {
+            font-size: 12px;
+            opacity: 0.7;
+            text-align: right;
+            color: #666;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chat-input textarea {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 12px 15px;
+            font-size: 16px;
+            resize: none;
+            min-height: 50px;
+        }
+        
+        .chat-input textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        .chat-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .chat-input button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .suggestion-chip {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .suggestion-chip:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .suggestion-chip i {
+            color: var(--primary-color);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        /* 打字机效果样式 */
+        .typewriter-text {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+            border-right: 3px solid var(--primary-color);
+            animation: blinkCursor 0.8s step-end infinite;
+            opacity: 0;
+        }
+        
+        .typewriter-text.typing {
+            animation: typingEffect 0.5s steps(40, end) forwards, blinkCursor 0.8s step-end infinite;
+        }
+        
+        .typewriter-text.typing-done {
+            width: 100%;
+            border-right: none;
+            animation: none;
+            opacity: 1;
+        }
+        
+        @keyframes typingEffect {
+            from { 
+                width: 0;
+                opacity: 1;
+            }
+            to { 
+                width: 100%;
+                opacity: 1;
+            }
+        }
+        
+        @keyframes blinkCursor {
+            from, to { border-color: transparent }
+            50% { border-color: var(--primary-color) }
+        }
+        
+        /* 按钮淡入动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        /* 新增SVG地图相关样式 */
+        .svg-map-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .svg-map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .route-path {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 10, 5;
+            animation: dash 30s linear infinite;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+        }
+        
+        .route-path.heart-route {
+            stroke: #4CAF50;
+        }
+        
+        .route-path.sleep-route {
+            stroke: #2196F3;
+        }
+        
+        .route-path.food-route {
+            stroke: #FF9800;
+        }
+        
+        .map-marker {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .map-marker:hover {
+            transform: scale(1.2);
+        }
+        
+        .map-marker circle {
+            fill: white;
+            stroke-width: 2;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+        }
+        
+        .map-marker.forest circle {
+            stroke: #4CAF50;
+        }
+        
+        .map-marker.water circle {
+            stroke: #2196F3;
+        }
+        
+        .map-marker.food circle {
+            stroke: #FF9800;
+        }
+        
+        .map-marker text {
+            font-size: 10px;
+            text-anchor: middle;
+            alignment-baseline: middle;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        
+        .map-tooltip {
+            position: absolute;
+            background: white;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        
+        .map-controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .map-control-btn {
+            width: 30px;
+            height: 30px;
+            background: white;
+            border: none;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .map-control-btn:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            
+            .navbar {
+                padding: 0.5rem 0;
+            }
+            
+            .navbar-brand {
+                font-size: 1rem;
+                padding: 6px 10px;
+            }
+            
+            .navbar-brand i {
+                font-size: 1.2rem;
+            }
+            
+            .navbar-toggler {
+                border: none;
+                background-color: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                padding: 6px 10px;
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: none;
+            }
+            
+            .navbar-toggler-icon {
+                width: 1.2rem;
+                height: 1.2rem;
+            }
+            
+            .navbar-collapse {
+                margin-top: 10px;
+            }
+            
+            .navbar-nav {
+                background-color: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                padding: 10px;
+            }
+            
+            .nav-item {
+                margin: 5px 0;
+                width: 100%;
+            }
+            
+            .nav-link {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .dual-text-large {
+                font-size: 2.5rem;
+            }
+            
+            .dual-text-small {
+                font-size: 1.5rem;
+            }
+            
+            .hero-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+            
+            .chat-container {
+                border-radius: 10px;
+                padding: 15px;
+                height: auto;
+                max-height: 80vh;
+            }
+            
+            .chat-messages {
+                max-height: 350px;
+                padding: 10px;
+            }
+            
+            .message {
+                padding: 10px;
+                margin-bottom: 10px;
+                max-width: 95%;
+            }
+            
+            .message-header {
+                padding: 8px 10px;
+            }
+            
+            .message-text {
+                font-size: 0.9rem;
+            }
+            
+            .suggestion-chips {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .suggestion-chip {
+                margin-bottom: 8px;
+                font-size: 0.8rem;
+                padding: 5px 10px;
+            }
+            
+            .chat-input {
+                padding: 8px;
+            }
+            
+            .chat-input textarea {
+                font-size: 0.9rem;
+            }
+            
+            .route-card {
+                margin-bottom: 20px;
+            }
+            
+            .svg-map-container {
+                height: 200px;
+            }
+            
+            .map-tooltip {
+                font-size: 0.8rem;
+            }
+            
+            .route-features span {
+                display: inline-block;
+                margin-bottom: 5px;
+                font-size: 0.8rem;
+            }
+            
+            .route-stats {
+                flex-wrap: wrap;
+                font-size: 0.8rem;
+            }
+            
+            .route-card .btn {
+                width: 100%;
+                padding: 8px 15px;
+            }
+            
+            .footer {
+                padding: 40px 0 20px;
+            }
+            
+            .footer h5 {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* 小屏幕手机优化 */
+        @media (max-width: 576px) {
+            .dual-text-large {
+                font-size: 2rem;
+            }
+            
+            .dual-text-small {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .hero {
+                padding: 20px 0;
+                min-height: 80vh;
+            }
+            
+            .svg-map-container {
+                height: 180px;
+            }
+            
+            .map-controls {
+                bottom: 5px;
+                right: 5px;
+            }
+            
+            .map-control-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.9rem;
+            }
+            
+            .travel-intro h3 {
+                font-size: 1.4rem;
+            }
+            
+            .travel-intro p {
+                font-size: 0.9rem;
+            }
+            
+            .route-tags {
+                flex-wrap: wrap;
+            }
+            
+            .route-tags .badge {
+                margin-bottom: 5px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-leaf"></i>
+                健康小㘵
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="fas fa-home"></i> 首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="health-data.html"><i class="fas fa-chart-line"></i> 健康数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="ai-analysis.html"><i class="fas fa-brain"></i> AI分析</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10">
+                    <div class="dual-text">
+                        <div class="dual-text-large typewriter-text" id="text1">AI智能分析，</div>
+                        <div class="dual-text-small typewriter-text" id="text2">健康管理专家。</div>
+                    </div>
+                    <div class="dual-text">
+                        <div class="dual-text-large typewriter-text" id="text3">数据驱动决策，</div>
+                        <div class="dual-text-small typewriter-text" id="text4">智慧守护健康。</div>
+                    </div>
+                    <div class="hero-buttons mt-5" id="heroButtons" style="opacity: 0;">
+                        <a href="#qa" class="btn hero-button hero-button-primary">健康问答</a>
+                        <a href="#qa" class="btn hero-button hero-button-secondary">开始咨询</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI分析 -->
+    <section id="qa" class="py-5">
+        <div class="container">
+            <h2 class="section-title">AI健康问答</h2>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="chat-container">
+                        <div id="chatMessages" class="chat-messages">
+                            <!-- AI欢迎消息 -->
+                            <div class="message message-ai">
+                                <div class="message-header">
+                                    <i class="fas fa-brain"></i>
+                                    <span>AI健康助手</span>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-text">
+                                        您好！我是您的AI健康助手。我可以基于您的健康数据提供分析和建议。您可以询问我关于您的睡眠、步数、心率、压力和体重等方面的问题。
+                                    </div>
+                                    <div class="message-time">刚刚</div>
+                                    <div class="suggestion-chips">
+                                        <div class="suggestion-chip" data-question="我的睡眠质量如何？">
+                                            <i class="fas fa-moon"></i>
+                                            <span>我的睡眠质量如何？</span>
+                                        </div>
+                                        <div class="suggestion-chip" data-question="我的步数达标了吗？">
+                                            <i class="fas fa-walking"></i>
+                                            <span>我的步数达标了吗？</span>
+                                        </div>
+                                        <div class="suggestion-chip" data-question="我的心率正常吗？">
+                                            <i class="fas fa-heartbeat"></i>
+                                            <span>我的心率正常吗？</span>
+                                        </div>
+                                        <div class="suggestion-chip" data-question="我的压力水平如何？">
+                                            <i class="fas fa-brain"></i>
+                                            <span>我的压力水平如何？</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <textarea id="userInput" placeholder="输入您的问题..." rows="1"></textarea>
+                            <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 智能推荐旅游路线 -->
+    <section id="travel-routes" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title">健康旅游路线推荐</h2>
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <div class="travel-intro p-4 bg-white rounded shadow-sm">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-route fs-1 text-primary me-3"></i>
+                            <h3 class="mb-0">基于您的健康数据智能规划旅游路线</h3>
+                        </div>
+                        <p class="lead">我们根据您的健康数据和需求，为您推荐最适合的旅游路线，既能欣赏美景，又能改善健康状况。</p>
+                        <div class="route-tags d-flex flex-wrap gap-2 mt-3">
+                            <span class="badge bg-success rounded-pill"><i class="fas fa-heart me-1"></i> 心脏健康</span>
+                            <span class="badge bg-info rounded-pill"><i class="fas fa-moon me-1"></i> 改善睡眠</span>
+                            <span class="badge bg-warning rounded-pill"><i class="fas fa-utensils me-1"></i> 健康饮食</span>
+                            <span class="badge bg-danger rounded-pill"><i class="fas fa-walking me-1"></i> 低强度运动</span>
+                            <span class="badge bg-primary rounded-pill"><i class="fas fa-mountain me-1"></i> 森林疗法</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- 旅游路线卡片 -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card route-card h-100 border-0 shadow-sm">
+                        <div class="svg-map-container">
+                            <svg class="svg-map" viewBox="0 0 200 100" id="heart-map">
+                                <defs>
+                                    <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feGaussianBlur stdDeviation="2" result="blur" />
+                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                    </filter>
+                                </defs>
+                                <rect width="100%" height="100%" fill="#f5f5f5" />
+                                <!-- 森林背景 -->
+                                <circle cx="80" cy="40" r="30" fill="#E8F5E9" opacity="0.6" />
+                                <circle cx="100" cy="70" r="25" fill="#E8F5E9" opacity="0.5" />
+                                <!-- 路线 -->
+                                <path class="route-path heart-route" d="M40,80 C60,40 90,20 120,50 C150,80 180,60 160,30" filter="url(#glow-green)" />
+                                <!-- 标记点 -->
+                                <g class="map-marker forest" data-title="森林氧吧" data-desc="负氧离子含量高，有助于心肺功能">
+                                    <circle cx="60" cy="40" r="8" />
+                                    <text x="60" y="40" fill="#4CAF50">树</text>
+                                </g>
+                                <g class="map-marker forest" data-title="心率监测点" data-desc="专业设备监测运动心率">
+                                    <circle cx="120" cy="50" r="8" />
+                                    <text x="120" y="50" fill="#4CAF50">心</text>
+                                </g>
+                                <g class="map-marker forest" data-title="休息区" data-desc="提供适当休息和补水">
+                                    <circle cx="150" cy="30" r="8" />
+                                    <text x="150" y="30" fill="#4CAF50">休</text>
+                                </g>
+                            </svg>
+                            <div class="map-tooltip"></div>
+                            <div class="map-controls">
+                                <button class="map-control-btn" title="放大">+</button>
+                                <button class="map-control-btn" title="缩小">-</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h4 class="card-title mb-0">心脏健康路线</h4>
+                                <span class="badge bg-success rounded-pill">推荐</span>
+                            </div>
+                            <p class="card-text">根据您的心率数据定制，包含缓坡步道和森林氧吧区域，有助于改善心血管健康。</p>
+                            <div class="route-stats d-flex justify-content-between text-muted mb-3">
+                                <small><i class="fas fa-ruler me-1"></i> 3.5公里</small>
+                                <small><i class="fas fa-clock me-1"></i> 约1.5小时</small>
+                                <small><i class="fas fa-mountain me-1"></i> 坡度适中</small>
+                            </div>
+                            <div class="route-features mb-3">
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-tree text-success me-1"></i> 森林疗法</span>
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-tint text-primary me-1"></i> 负氧离子区</span>
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-sun text-warning me-1"></i> 光照适宜</span>
+                            </div>
+                            <button class="btn btn-success w-100 mt-auto">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 mb-4">
+                    <div class="card route-card h-100 border-0 shadow-sm">
+                        <div class="svg-map-container">
+                            <svg class="svg-map" viewBox="0 0 200 100" id="sleep-map">
+                                <defs>
+                                    <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feGaussianBlur stdDeviation="2" result="blur" />
+                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                    </filter>
+                                </defs>
+                                <rect width="100%" height="100%" fill="#f5f5f5" />
+                                <!-- 水域背景 -->
+                                <path d="M50,60 Q80,40 110,70 Q140,100 170,70" fill="#E3F2FD" opacity="0.6" />
+                                <!-- 路线 -->
+                                <path class="route-path sleep-route" d="M30,50 C50,30 90,60 120,40 C150,20 170,40 180,70" filter="url(#glow-blue)" />
+                                <!-- 标记点 -->
+                                <g class="map-marker water" data-title="芳香植物园" data-desc="薰衣草精油有助于放松">
+                                    <circle cx="50" cy="30" r="8" />
+                                    <text x="50" y="30" fill="#2196F3">香</text>
+                                </g>
+                                <g class="map-marker water" data-title="水景区" data-desc="水流声有助于深度睡眠">
+                                    <circle cx="120" cy="40" r="8" />
+                                    <text x="120" y="40" fill="#2196F3">水</text>
+                                </g>
+                                <g class="map-marker water" data-title="安静休息区" data-desc="适合冥想和深呼吸">
+                                    <circle cx="170" cy="60" r="8" />
+                                    <text x="170" y="60" fill="#2196F3">静</text>
+                                </g>
+                            </svg>
+                            <div class="map-tooltip"></div>
+                            <div class="map-controls">
+                                <button class="map-control-btn" title="放大">+</button>
+                                <button class="map-control-btn" title="缩小">-</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h4 class="card-title mb-0">改善睡眠路线</h4>
+                                <span class="badge bg-info rounded-pill">热门</span>
+                            </div>
+                            <p class="card-text">针对您的睡眠质量数据，设计包含芳香植物园和水景区的路线，有助于放松身心。</p>
+                            <div class="route-stats d-flex justify-content-between text-muted mb-3">
+                                <small><i class="fas fa-ruler me-1"></i> 2.8公里</small>
+                                <small><i class="fas fa-clock me-1"></i> 约1小时</small>
+                                <small><i class="fas fa-mountain me-1"></i> 平缓</small>
+                            </div>
+                            <div class="route-features mb-3">
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-water text-info me-1"></i> 溪流环绕</span>
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-leaf text-success me-1"></i> 薰衣草园</span>
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-moon text-secondary me-1"></i> 助眠环境</span>
+                            </div>
+                            <button class="btn btn-info text-white w-100 mt-auto">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 mb-4">
+                    <div class="card route-card h-100 border-0 shadow-sm">
+                        <div class="svg-map-container">
+                            <svg class="svg-map" viewBox="0 0 200 100" id="food-map">
+                                <defs>
+                                    <filter id="glow-orange" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feGaussianBlur stdDeviation="2" result="blur" />
+                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                    </filter>
+                                </defs>
+                                <rect width="100%" height="100%" fill="#f5f5f5" />
+                                <!-- 农田背景 -->
+                                <rect x="40" y="20" width="50" height="40" fill="#FFF3E0" opacity="0.6" rx="5" ry="5" />
+                                <rect x="110" y="50" width="60" height="30" fill="#FFF3E0" opacity="0.6" rx="5" ry="5" />
+                                <!-- 路线 -->
+                                <path class="route-path food-route" d="M30,70 C60,60 70,20 110,30 C150,40 180,70 160,90" filter="url(#glow-orange)" />
+                                <!-- 标记点 -->
+                                <g class="map-marker food" data-title="有机农场" data-desc="体验健康种植">
+                                    <circle cx="70" cy="30" r="8" />
+                                    <text x="70" y="30" fill="#FF9800">农</text>
+                                </g>
+                                <g class="map-marker food" data-title="健康餐厅" data-desc="品尝营养美食">
+                                    <circle cx="120" cy="40" r="8" />
+                                    <text x="120" y="40" fill="#FF9800">餐</text>
+                                </g>
+                                <g class="map-marker food" data-title="采摘区" data-desc="亲手采摘新鲜食材">
+                                    <circle cx="160" cy="70" r="8" />
+                                    <text x="160" y="70" fill="#FF9800">摘</text>
+                                </g>
+                            </svg>
+                            <div class="map-tooltip"></div>
+                            <div class="map-controls">
+                                <button class="map-control-btn" title="放大">+</button>
+                                <button class="map-control-btn" title="缩小">-</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h4 class="card-title mb-0">健康饮食路线</h4>
+                                <span class="badge bg-warning text-dark rounded-pill">新增</span>
+                            </div>
+                            <p class="card-text">结合您的饮食习惯和健康数据，规划有机农场和健康餐厅路线，体验健康美食。</p>
+                            <div class="route-stats d-flex justify-content-between text-muted mb-3">
+                                <small><i class="fas fa-ruler me-1"></i> 4.2公里</small>
+                                <small><i class="fas fa-clock me-1"></i> 约2小时</small>
+                                <small><i class="fas fa-mountain me-1"></i> 起伏小</small>
+                            </div>
+                            <div class="route-features mb-3">
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-carrot text-warning me-1"></i> 有机农场</span>
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-utensils text-danger me-1"></i> 健康餐厅</span>
+                                <span class="d-inline-block me-2 mb-1"><i class="fas fa-seedling text-success me-1"></i> 采摘体验</span>
+                            </div>
+                            <button class="btn btn-warning text-dark w-100 mt-auto">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-outline-primary btn-lg px-5">
+                        <i class="fas fa-map-marked-alt me-2"></i>查看更多路线
+                    </button>
+                    <div class="mt-3 text-muted">
+                        <small><i class="fas fa-info-circle me-1"></i> 路线每周根据您的健康数据动态更新</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 旅游路线详情模态框 -->
+    <div class="modal fade" id="routeDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" id="routeDetailTitle">路线详情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img id="routeDetailImage" src="" class="img-fluid rounded mb-3" alt="路线图片">
+                            <div class="svg-map-container mb-3" style="height: 300px;">
+                                <svg class="svg-map" viewBox="0 0 200 100" id="detailMap">
+                                    <!-- 地图内容将通过JavaScript动态生成 -->
+                                    <rect width="100%" height="100%" fill="#f5f5f5" />
+                                    <text x="100" y="50" text-anchor="middle" font-size="14">地图加载中...</text>
+                                </svg>
+                                <div class="map-tooltip"></div>
+                                <div class="map-controls">
+                                    <button class="map-control-btn" id="zoomIn" title="放大">+</button>
+                                    <button class="map-control-btn" id="zoomOut" title="缩小">-</button>
+                                    <button class="map-control-btn" id="resetView" title="重置视图"><i class="fas fa-redo-alt fa-xs"></i></button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="route-legend">
+                                    <span class="badge me-2 p-2" id="routeTypeBadge"></span>
+                                    <small class="text-muted" id="routeDistance"></small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary" id="toggleElevation">
+                                    <i class="fas fa-mountain me-1"></i>显示海拔
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 id="routeDetailName" class="mb-3"></h4>
+                            <p id="routeDetailDesc" class="mb-4"></p>
+                            
+                            <h5 class="mb-3">路线特点</h5>
+                            <div id="routeDetailFeatures" class="mb-4"></div>
+                            
+                            <h5 class="mb-3">健康益处</h5>
+                            <ul id="routeDetailBenefits" class="mb-4"></ul>
+                            
+                            <h5 class="mb-3">最佳游览时间</h5>
+                            <p id="routeDetailTiming"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus me-2"></i>添加到我的行程
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>关于我们</h5>
+                    <p>健康小㘵平台，致力于通过先进技术为用户提供专业的健康管理服务。</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-weibo"></i></a>
+                        <a href="#"><i class="fab fa-qq"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html">首页</a></li>
+                        <li><a href="health-data.html">健康数据</a></li>
+                        <li><a href="ai-analysis.html">AI分析</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>联系我们</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i> 广东省广州市小㘵村</p>
+                    <p><i class="fas fa-phone me-2"></i> 020-12345678</p>
+                    <p><i class="fas fa-envelope me-2"></i> info@xiaobuhealth.com</p>
+                    <p><i class="fas fa-clock me-2"></i> 周一至周日 9:00-18:00</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 健康小㘵. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/nav-animation.js"></script>
+    <!-- 移除高德地图API -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 打字机效果
+            const text1 = document.getElementById('text1');
+            const text2 = document.getElementById('text2');
+            const text3 = document.getElementById('text3');
+            const text4 = document.getElementById('text4');
+            const heroButtons = document.getElementById('heroButtons');
+            
+            function startTyping(element, delay, callback) {
+                setTimeout(() => {
+                    element.classList.add('typing');
+                    
+                    // 计算动画完成时间（基于文本长度）
+                    const textLength = element.textContent.length;
+                    const typingDuration = textLength * 100; // 每个字符约100ms
+                    
+                    setTimeout(() => {
+                        element.classList.remove('typing');
+                        element.classList.add('typing-done');
+                        if (callback) callback();
+                    }, typingDuration);
+                }, delay);
+            }
+            
+            // 依次启动打字动画
+            startTyping(text1, 500, function() {
+                startTyping(text2, 200, function() {
+                    startTyping(text3, 400, function() {
+                        startTyping(text4, 200, function() {
+                            // 所有文本显示完后，显示按钮
+                            setTimeout(() => {
+                                heroButtons.classList.add('fade-in');
+                            }, 300);
+                        });
+                    });
+                });
+            });
+            
+            // AI健康问答功能
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            
+            // 监听发送按钮点击
+            sendButton.addEventListener('click', sendMessage);
+            
+            // 监听输入框回车事件
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // 自动调整输入框高度
+            userInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // 监听建议问题点击
+            document.querySelectorAll('.suggestion-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const question = this.getAttribute('data-question');
+                    userInput.value = question;
+                    sendMessage();
+                });
+            });
+            
+            // 发送消息函数
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message) {
+                    // 添加用户消息
+                    addUserMessage(message);
+                    
+                    // 清空输入框
+                    userInput.value = '';
+                    userInput.style.height = 'auto';
+                    
+                    // 显示输入中动画
+                    showTypingIndicator();
+                    
+                    // 模拟AI响应延迟
+                    setTimeout(() => {
+                        // 移除输入中动画
+                        removeTypingIndicator();
+                        
+                        // 根据问题生成AI响应
+                        const aiResponse = generateAIResponse(message);
+                        
+                        // 添加AI响应
+                        addAIMessage(aiResponse);
+                        
+                        // 滚动到底部
+                        scrollToBottom();
+                    }, 1500);
+                }
+            }
+            
+            // 添加用户消息
+            function addUserMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-user';
+                
+                const now = new Date();
+                const timeStr = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+                
+                messageElement.innerHTML = `
+                    <div class="message-header">
+                        <span>您</span>
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${message}</div>
+                        <div class="message-time">${timeStr}</div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageElement);
+                scrollToBottom();
+            }
+            
+            // 添加AI消息
+            function addAIMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-ai';
+                
+                const now = new Date();
+                const timeStr = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+                
+                messageElement.innerHTML = `
+                    <div class="message-header">
+                        <i class="fas fa-brain"></i>
+                        <span>AI健康助手</span>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text typewriter-text">${message}</div>
+                        <div class="message-time">${timeStr}</div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageElement);
+                
+                // 添加打字效果
+                const textElement = messageElement.querySelector('.typewriter-text');
+                textElement.classList.add('typing');
+                
+                setTimeout(() => {
+                    textElement.classList.remove('typing');
+                    textElement.classList.add('typing-done');
+                    scrollToBottom();
+                }, message.length * 20); // 根据文本长度计算动画时间
+            }
+            
+            // 显示输入中动画
+            function showTypingIndicator() {
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'message message-ai typing-indicator-container';
+                typingIndicator.id = 'typingIndicator';
+                
+                typingIndicator.innerHTML = `
+                    <div class="message-header">
+                        <i class="fas fa-brain"></i>
+                        <span>AI健康助手</span>
+                    </div>
+                    <div class="message-content">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(typingIndicator);
+                scrollToBottom();
+            }
+            
+            // 移除输入中动画
+            function removeTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            // 滚动到底部
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 根据问题生成AI响应（示例）
+            function generateAIResponse(question) {
+                // 将问题转换为小写以便比较
+                const lowerQuestion = question.toLowerCase();
+                
+                if (lowerQuestion.includes('睡眠质量')) {
+                    return '根据您近7天的睡眠数据，您的平均睡眠时间为6.2小时，略低于健康标准（7-8小时）。深度睡眠比例为18%，处于正常范围。建议您每天22:30前入睡，保持规律的作息时间，避免睡前使用电子设备。';
+                } else if (lowerQuestion.includes('步数')) {
+                    return '您昨天的步数为8,756步，已达到每日推荐步数（8,000步）。过去一周您的平均步数为7,823步，周一和周五的活动量较低。建议您在工作日也保持适当的活动量，每小时起身活动5-10分钟。';
+                } else if (lowerQuestion.includes('心率')) {
+                    return '您的静息心率平均为68次/分钟，处于正常范围（60-80次/分钟）。最近一周没有检测到异常心率事件。您的心率变异性指数为52，表明您的心血管健康状况良好。';
+                } else if (lowerQuestion.includes('压力')) {
+                    return '您的压力水平评分为65（中等偏高）。工作日的压力明显高于周末。建议您每天安排15-20分钟的冥想或深呼吸练习，有助于降低压力水平。也可以考虑在工作间隙进行短暂的伸展活动。';
+                } else if (lowerQuestion.includes('体重')) {
+                    return '您当前的体重指数(BMI)为23.5，处于正常范围（18.5-24.9）。过去一个月您的体重变化不大，波动在±0.5kg范围内，属于正常波动。建议您继续保持当前的饮食和运动习惯。';
+                } else {
+                    return '感谢您的提问。根据您的健康数据，我建议您保持规律的作息时间，每天保证7-8小时的睡眠，坚持适度运动，并注意饮食均衡。如需更具体的健康建议，请告诉我您关注的具体健康方面，如睡眠、运动、饮食等。';
+                }
+            }
+
+            // 旅游路线详情功能
+            const routeButtons = document.querySelectorAll('.route-card .btn');
+            const routeDetailModal = new bootstrap.Modal(document.getElementById('routeDetailModal'));
+            
+            // 路线数据
+            const routeData = [
+                {
+                    name: "心脏健康路线",
+                    type: "heart",
+                    color: "#4CAF50",
+                    bgColor: "#E8F5E9",
+                    description: "这条路线专为改善心血管健康设计，沿途设有多个休息站和心率监测点。路线穿过森林氧吧区，负氧离子含量高，有助于降低血压和改善心率变异性。缓坡设计确保有氧运动效果的同时不会造成过度负担。",
+                    features: [
+                        {icon: "fa-tree", text: "森林疗法", color: "success"},
+                        {icon: "fa-tint", text: "负氧离子区", color: "primary"},
+                        {icon: "fa-sun", text: "光照适宜", color: "warning"},
+                        {icon: "fa-heartbeat", text: "心率监测站", color: "danger"}
+                    ],
+                    benefits: [
+                        "根据您的心率数据，定期行走此路线可降低静息心率约3-5次/分钟",
+                        "有助于改善心肺功能和血液循环",
+                        "森林浴可降低压力激素皮质醇水平",
+                        "适度的坡度变化可增强心肌耐力"
+                    ],
+                    timing: "建议在早上9-11点或下午4-6点游览，此时温度适宜且负氧离子含量较高。根据您的健康数据，每周建议行走2-3次此路线。",
+                    pathData: "M20,80 C50,40 100,20 140,50 C180,80 180,40 160,30",
+                    markers: [
+                        { x: 50, y: 40, title: "森林氧吧", desc: "负氧离子含量高", icon: "树" },
+                        { x: 140, y: 50, title: "心率监测点", desc: "专业设备监测心率", icon: "心" },
+                        { x: 160, y: 30, title: "休息区", desc: "补充能量和休息", icon: "休" }
+                    ],
+                    distance: "3.5公里",
+                    elevation: [0, 5, 10, 20, 30, 35, 25, 15, 10, 5, 0] // 海拔数据（相对高度）
+                },
+                {
+                    name: "改善睡眠路线",
+                    type: "sleep",
+                    color: "#2196F3",
+                    bgColor: "#E3F2FD",
+                    description: "专为改善睡眠质量设计的路线，途经芳香植物园和水景区，环境安静且植被丰富。特别引入了有助于放松的薰衣草和柑橘植物，空气中的植物精油有助于缓解压力，促进优质睡眠。",
+                    features: [
+                        {icon: "fa-water", text: "溪流环绕", color: "info"},
+                        {icon: "fa-leaf", text: "薰衣草园", color: "success"},
+                        {icon: "fa-moon", text: "助眠环境", color: "secondary"},
+                        {icon: "fa-wind", text: "负离子瀑布", color: "primary"}
+                    ],
+                    benefits: [
+                        "根据您的睡眠数据，此路线的芳香疗法可帮助缩短入睡时间约15-20分钟",
+                        "水景区的白噪音有助于提高深度睡眠比例",
+                        "薰衣草精油具有科学验证的助眠效果",
+                        "傍晚漫步可促进褪黑素自然分泌"
+                    ],
+                    timing: "最佳游览时间为下午4点后至黄昏，此时植物精油释放量达到峰值，且有助于调整生物钟。建议睡前2-3小时完成行程。",
+                    pathData: "M20,50 C50,30 90,60 130,40 C170,20 180,40 180,70",
+                    markers: [
+                        { x: 50, y: 30, title: "芳香植物园", desc: "薰衣草精油助眠", icon: "香" },
+                        { x: 130, y: 40, title: "水景区", desc: "水流声助眠", icon: "水" },
+                        { x: 170, y: 60, title: "静谧区", desc: "冥想与放松", icon: "静" }
+                    ],
+                    distance: "2.8公里",
+                    elevation: [0, 3, 5, 8, 10, 12, 10, 8, 5, 3, 0] // 平缓路线
+                },
+                {
+                    name: "健康饮食路线",
+                    type: "food",
+                    color: "#FF9800",
+                    bgColor: "#FFF3E0",
+                    description: "结合您的饮食习惯和营养需求设计的美食之旅，路线包含有机农场、健康餐厅和食材市场。您可以参与食材采摘、了解健康饮食知识，并品尝符合您健康需求的特色美食。",
+                    features: [
+                        {icon: "fa-carrot", text: "有机农场", color: "warning"},
+                        {icon: "fa-utensils", text: "健康餐厅", color: "danger"},
+                        {icon: "fa-seedling", text: "采摘体验", color: "success"},
+                        {icon: "fa-apple-alt", text: "营养课堂", color: "primary"}
+                    ],
+                    benefits: [
+                        "根据您的健康数据，此路线推荐的饮食方案可改善血糖稳定性",
+                        "有机食材中的抗氧化物质有助于提升免疫力",
+                        "了解食材从种植到餐桌的全过程，建立健康饮食意识",
+                        "当季食材采摘有助于增加饮食多样性和营养密度"
+                    ],
+                    timing: "上午10点至下午2点是最佳游览时间，此时可观赏农场作业并参与采摘活动。周末有特别的烹饪课程，根据您的时间安排建议预约参加。",
+                    pathData: "M20,70 C60,60 80,20 130,30 C180,40 180,70 160,80",
+                    markers: [
+                        { x: 80, y: 25, title: "有机农场", desc: "健康种植体验", icon: "农" },
+                        { x: 130, y: 30, title: "健康餐厅", desc: "营养均衡餐饮", icon: "餐" },
+                        { x: 160, y: 75, title: "采摘区", desc: "亲手采摘食材", icon: "摘" }
+                    ],
+                    distance: "4.2公里",
+                    elevation: [0, 2, 5, 8, 12, 15, 18, 15, 10, 5, 0] // 起伏较小
+                }
+            ];
+            
+            // 为每个路线按钮添加点击事件
+            routeButtons.forEach((button, index) => {
+                button.addEventListener('click', function() {
+                    const route = routeData[index];
+                    
+                    // 填充模态框内容
+                    document.getElementById('routeDetailTitle').textContent = route.name;
+                    document.getElementById('routeDetailName').textContent = route.name;
+                    document.getElementById('routeDetailDesc').textContent = route.description;
+                    document.getElementById('routeDetailTiming').textContent = route.timing;
+                    
+                    // 设置路线标识
+                    const routeTypeBadge = document.getElementById('routeTypeBadge');
+                    routeTypeBadge.textContent = route.name;
+                    routeTypeBadge.style.backgroundColor = route.color;
+                    routeTypeBadge.style.color = '#fff';
+                    
+                    // 设置路线距离
+                    document.getElementById('routeDistance').textContent = route.distance;
+                    
+                    // 填充路线特点
+                    const featuresContainer = document.getElementById('routeDetailFeatures');
+                    featuresContainer.innerHTML = '';
+                    route.features.forEach(feature => {
+                        const featureElement = document.createElement('span');
+                        featureElement.className = `d-inline-block me-3 mb-2 text-${feature.color}`;
+                        featureElement.innerHTML = `<i class="fas ${feature.icon} me-1"></i> ${feature.text}`;
+                        featuresContainer.appendChild(featureElement);
+                    });
+                    
+                    // 填充健康益处
+                    const benefitsContainer = document.getElementById('routeDetailBenefits');
+                    benefitsContainer.innerHTML = '';
+                    route.benefits.forEach(benefit => {
+                        const benefitElement = document.createElement('li');
+                        benefitElement.className = 'mb-2';
+                        benefitElement.textContent = benefit;
+                        benefitsContainer.appendChild(benefitElement);
+                    });
+                    
+                    // 生成详情地图
+                    generateDetailMap(route);
+                    
+                    // 显示模态框
+                    routeDetailModal.show();
+                });
+            });
+            
+            // 生成详情地图
+            function generateDetailMap(route) {
+                const detailMap = document.getElementById('detailMap');
+                
+                // 清空现有内容
+                detailMap.innerHTML = '';
+                
+                // 设置背景
+                const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                background.setAttribute('width', '100%');
+                background.setAttribute('height', '100%');
+                background.setAttribute('fill', '#f5f5f5');
+                detailMap.appendChild(background);
+                
+                // 添加路线区域背景
+                const areaBackground = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                if (route.type === 'heart') {
+                    areaBackground.setAttribute('d', 'M30,80 C70,30 130,20 170,70');
+                    areaBackground.setAttribute('stroke', 'none');
+                    areaBackground.setAttribute('fill', route.bgColor);
+                    areaBackground.setAttribute('opacity', '0.5');
+                    areaBackground.setAttribute('transform', 'scale(1, 0.8)');
+                } else if (route.type === 'sleep') {
+                    areaBackground.setAttribute('d', 'M20,50 Q80,20 140,60 Q180,90 190,60');
+                    areaBackground.setAttribute('stroke', 'none');
+                    areaBackground.setAttribute('fill', route.bgColor);
+                    areaBackground.setAttribute('opacity', '0.5');
+                } else {
+                    // 食物路线背景为农田形状
+                    const farm1 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    farm1.setAttribute('x', '40');
+                    farm1.setAttribute('y', '20');
+                    farm1.setAttribute('width', '60');
+                    farm1.setAttribute('height', '40');
+                    farm1.setAttribute('rx', '5');
+                    farm1.setAttribute('ry', '5');
+                    farm1.setAttribute('fill', route.bgColor);
+                    farm1.setAttribute('opacity', '0.5');
+                    detailMap.appendChild(farm1);
+                    
+                    const farm2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    farm2.setAttribute('x', '120');
+                    farm2.setAttribute('y', '50');
+                    farm2.setAttribute('width', '60');
+                    farm2.setAttribute('height', '30');
+                    farm2.setAttribute('rx', '5');
+                    farm2.setAttribute('ry', '5');
+                    farm2.setAttribute('fill', route.bgColor);
+                    farm2.setAttribute('opacity', '0.5');
+                    detailMap.appendChild(farm2);
+                }
+                
+                if (route.type !== 'food') {
+                    detailMap.appendChild(areaBackground);
+                }
+                
+                // 添加路线路径
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', route.pathData);
+                path.setAttribute('class', `route-path ${route.type}-route`);
+                path.setAttribute('stroke', route.color);
+                detailMap.appendChild(path);
+                
+                // 添加标记点
+                route.markers.forEach(marker => {
+                    const markerGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    markerGroup.setAttribute('class', `map-marker ${route.type}`);
+                    markerGroup.setAttribute('data-title', marker.title);
+                    markerGroup.setAttribute('data-desc', marker.desc);
+                    
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', marker.x);
+                    circle.setAttribute('cy', marker.y);
+                    circle.setAttribute('r', '8');
+                    circle.setAttribute('stroke', route.color);
+                    
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', marker.x);
+                    text.setAttribute('y', marker.y);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('alignment-baseline', 'middle');
+                    text.setAttribute('fill', route.color);
+                    text.textContent = marker.icon;
+                    
+                    markerGroup.appendChild(circle);
+                    markerGroup.appendChild(text);
+                    detailMap.appendChild(markerGroup);
+                    
+                    // 添加标记点悬停交互
+                    markerGroup.addEventListener('mouseenter', function() {
+                        const tooltip = document.querySelector('#routeDetailModal .map-tooltip');
+                        tooltip.innerHTML = `<strong>${marker.title}</strong><br>${marker.desc}`;
+                        tooltip.style.opacity = 1;
+                        
+                        // 计算位置
+                        const rect = detailMap.getBoundingClientRect();
+                        const containerRect = detailMap.parentElement.getBoundingClientRect();
+                        
+                        // 将SVG坐标转换为屏幕坐标
+                        const point = detailMap.createSVGPoint();
+                        point.x = marker.x;
+                        point.y = marker.y;
+                        const screenPoint = point.matrixTransform(detailMap.getScreenCTM());
+                        
+                        tooltip.style.left = (screenPoint.x - containerRect.left - tooltip.offsetWidth / 2) + 'px';
+                        tooltip.style.top = (screenPoint.y - containerRect.top - tooltip.offsetHeight - 15) + 'px';
+                    });
+                    
+                    markerGroup.addEventListener('mouseleave', function() {
+                        const tooltip = document.querySelector('#routeDetailModal .map-tooltip');
+                        tooltip.style.opacity = 0;
+                    });
+                });
+                
+                // 可以选择添加海拔图表
+                document.getElementById('toggleElevation').addEventListener('click', function() {
+                    const existingChart = detailMap.querySelector('.elevation-chart');
+                    
+                    if (existingChart) {
+                        // 如果已有图表，则删除
+                        existingChart.remove();
+                        this.innerHTML = '<i class="fas fa-mountain me-1"></i>显示海拔';
+                    } else {
+                        // 添加海拔图表
+                        const elevationData = route.elevation;
+                        const chartHeight = 30;
+                        const chartWidth = 160;
+                        const chartX = 20;
+                        const chartY = 90 - chartHeight;
+                        
+                        // 找出最大高度用于缩放
+                        const maxElevation = Math.max(...elevationData);
+                        
+                        // 创建图表组
+                        const chartGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                        chartGroup.setAttribute('class', 'elevation-chart');
+                        
+                        // 添加背景
+                        const chartBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        chartBg.setAttribute('x', chartX);
+                        chartBg.setAttribute('y', chartY);
+                        chartBg.setAttribute('width', chartWidth);
+                        chartBg.setAttribute('height', chartHeight);
+                        chartBg.setAttribute('fill', 'rgba(255,255,255,0.8)');
+                        chartBg.setAttribute('rx', '3');
+                        chartGroup.appendChild(chartBg);
+                        
+                        // 创建海拔线路径
+                        let pathData = `M${chartX},${chartY + chartHeight}`;
+                        const step = chartWidth / (elevationData.length - 1);
+                        
+                        elevationData.forEach((height, index) => {
+                            const x = chartX + index * step;
+                            const y = chartY + chartHeight - (height / maxElevation * chartHeight);
+                            pathData += ` L${x},${y}`;
+                        });
+                        
+                        pathData += ` L${chartX + chartWidth},${chartY + chartHeight} Z`;
+                        
+                        const elevationPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        elevationPath.setAttribute('d', pathData);
+                        elevationPath.setAttribute('fill', route.bgColor);
+                        elevationPath.setAttribute('stroke', route.color);
+                        elevationPath.setAttribute('stroke-width', '1.5');
+                        chartGroup.appendChild(elevationPath);
+                        
+                        // 添加标题
+                        const chartTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        chartTitle.setAttribute('x', chartX + 5);
+                        chartTitle.setAttribute('y', chartY + 10);
+                        chartTitle.setAttribute('font-size', '6');
+                        chartTitle.setAttribute('fill', '#666');
+                        chartTitle.textContent = '海拔变化图';
+                        chartGroup.appendChild(chartTitle);
+                        
+                        detailMap.appendChild(chartGroup);
+                        this.innerHTML = '<i class="fas fa-mountain me-1"></i>隐藏海拔';
+                    }
+                });
+                
+                // 添加比例尺
+                const scale = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                scale.setAttribute('class', 'map-scale');
+                scale.setAttribute('transform', 'translate(20, 20)');
+                
+                const scaleLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                scaleLine.setAttribute('x1', '0');
+                scaleLine.setAttribute('y1', '0');
+                scaleLine.setAttribute('x2', '50');
+                scaleLine.setAttribute('y2', '0');
+                scaleLine.setAttribute('stroke', '#666');
+                scaleLine.setAttribute('stroke-width', '2');
+                
+                const scaleText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                scaleText.setAttribute('x', '25');
+                scaleText.setAttribute('y', '10');
+                scaleText.setAttribute('text-anchor', 'middle');
+                scaleText.setAttribute('font-size', '8');
+                scaleText.setAttribute('fill', '#666');
+                scaleText.textContent = '1 km';
+                
+                scale.appendChild(scaleLine);
+                scale.appendChild(scaleText);
+                detailMap.appendChild(scale);
+                
+                // 添加指北针
+                const compass = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                compass.setAttribute('class', 'map-compass');
+                compass.setAttribute('transform', 'translate(170, 20)');
+                
+                const compassCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                compassCircle.setAttribute('cx', '0');
+                compassCircle.setAttribute('cy', '0');
+                compassCircle.setAttribute('r', '10');
+                compassCircle.setAttribute('fill', 'white');
+                compassCircle.setAttribute('stroke', '#666');
+                compassCircle.setAttribute('stroke-width', '1');
+                
+                const compassNeedle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                compassNeedle.setAttribute('d', 'M0,-8 L2,0 L0,8 L-2,0 Z');
+                compassNeedle.setAttribute('fill', '#666');
+                
+                const compassN = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                compassN.setAttribute('x', '0');
+                compassN.setAttribute('y', '-3');
+                compassN.setAttribute('text-anchor', 'middle');
+                compassN.setAttribute('font-size', '6');
+                compassN.setAttribute('fill', '#666');
+                compassN.textContent = 'N';
+                
+                compass.appendChild(compassCircle);
+                compass.appendChild(compassNeedle);
+                compass.appendChild(compassN);
+                detailMap.appendChild(compass);
+            }
+        });
+    </script>
+</body>
+</html> 
