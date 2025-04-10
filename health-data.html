@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小㘵村智能养生 - 健康数据</title>
+    <title>健康小㘵 - 健康数据</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -24,9 +24,11 @@
         
         .navbar {
             background-color: #000000;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         
         .navbar-brand {
@@ -36,31 +38,151 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .navbar-brand:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .navbar-brand i {
             color: var(--primary-color);
             font-size: 1.5rem;
+            transition: transform 0.4s ease;
+        }
+        
+        .navbar-brand:hover i {
+            transform: rotate(15deg) scale(1.2);
+        }
+        
+        .nav-item {
+            margin: 0 5px;
+            position: relative;
         }
         
         .nav-link {
             color: #ffffff !important;
-            transition: var(--transition);
-            position: relative;
-            padding: 0.5rem 1rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 8px 15px;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             font-size: 1rem;
             font-weight: 500;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.6s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
         }
         
         .nav-link:hover {
             color: var(--primary-color) !important;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .nav-link.active {
-            color: var(--primary-color) !important;
+            color: #ffffff !important;
+            background-color: var(--primary-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+        }
+        
+        .nav-link.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.6);
+        }
+        
+        .nav-link i {
+            color: #ffffff;
+            font-size: 1.2rem;
+            transition: transform 0.4s ease;
+        }
+        
+        .nav-link:hover i {
+            transform: translateY(-2px) scale(1.2);
+            color: var(--primary-color);
+        }
+        
+        /* Perspective Split Text Menu Animation 相关样式 */
+        .nav-text-container {
+            position: relative;
+            display: inline-block;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+        
+        .nav-text {
+            display: block;
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .nav-text.static {
+            transform-origin: bottom;
+            opacity: 1;
+        }
+        
+        .nav-text.dynamic {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: top;
+            transform: rotateX(-90deg);
+            opacity: 0;
+            color: var(--primary-color);
+        }
+        
+        .nav-link.perspective-active .nav-text.static {
+            transform: rotateX(90deg);
+            opacity: 0;
+        }
+        
+        .nav-link.perspective-active .nav-text.dynamic {
+            transform: rotateX(0);
+            opacity: 1;
+        }
+        
+        .nav-link i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-link.perspective-active i {
+            transform: translateY(-2px);
         }
         
         .nav-link.active::after {
@@ -71,13 +193,6 @@
             width: 100%;
             height: 2px;
             background-color: var(--primary-color);
-        }
-        
-        .nav-link i {
-            color: var(--primary-color);
-            font-size: 1.2rem;
-            width: 24px;
-            text-align: center;
         }
         
         .hero {
@@ -288,6 +403,219 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: #999999;
         }
+        
+        /* 打字机效果样式 */
+        .typewriter-text {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+            border-right: 3px solid var(--primary-color);
+            animation: blinkCursor 0.8s step-end infinite;
+            opacity: 0;
+        }
+        
+        .typewriter-text.typing {
+            animation: typing 0.5s steps(40, end) forwards, blinkCursor 0.8s step-end infinite;
+        }
+        
+        .typewriter-text.typing-done {
+            width: 100%;
+            border-right: none;
+            animation: none;
+            opacity: 1;
+        }
+        
+        @keyframes typing {
+            from { 
+                width: 0;
+                opacity: 1;
+            }
+            to { 
+                width: 100%;
+                opacity: 1;
+            }
+        }
+        
+        @keyframes blinkCursor {
+            from, to { border-color: transparent }
+            50% { border-color: var(--primary-color) }
+        }
+        
+        /* 按钮淡入动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            
+            .navbar {
+                padding: 0.5rem 0;
+            }
+            
+            .navbar-brand {
+                font-size: 1rem;
+                padding: 6px 10px;
+            }
+            
+            .navbar-brand i {
+                font-size: 1.2rem;
+            }
+            
+            .navbar-toggler {
+                border: none;
+                background-color: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                padding: 6px 10px;
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: none;
+            }
+            
+            .navbar-toggler-icon {
+                width: 1.2rem;
+                height: 1.2rem;
+            }
+            
+            .navbar-collapse {
+                margin-top: 10px;
+            }
+            
+            .navbar-nav {
+                background-color: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                padding: 10px;
+            }
+            
+            .nav-item {
+                margin: 5px 0;
+                width: 100%;
+            }
+            
+            .nav-link {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .dual-text-large {
+                font-size: 2.5rem;
+            }
+            
+            .dual-text-small {
+                font-size: 1.5rem;
+            }
+            
+            .hero-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+            
+            .data-card {
+                margin-bottom: 20px;
+                padding: 15px;
+            }
+            
+            .data-value {
+                font-size: 2.5rem;
+            }
+            
+            .chart-container {
+                padding: 15px;
+                margin-bottom: 20px;
+                overflow-x: auto;
+            }
+            
+            .data-tabs .btn {
+                padding: 5px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .sync-button {
+                width: 100%;
+                margin-top: 10px;
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .footer {
+                padding: 40px 0 20px;
+            }
+            
+            .footer h5 {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* 小屏幕手机优化 */
+        @media (max-width: 576px) {
+            .dual-text-large {
+                font-size: 2rem;
+            }
+            
+            .dual-text-small {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .hero {
+                padding: 20px 0;
+                min-height: 80vh;
+            }
+            
+            .data-card-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .data-value {
+                font-size: 2rem;
+            }
+            
+            .data-label {
+                font-size: 0.9rem;
+            }
+            
+            .data-unit {
+                font-size: 0.8rem;
+            }
+            
+            .data-trend {
+                font-size: 0.8rem;
+            }
+            
+            .data-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .data-tabs .btn {
+                margin-bottom: 5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -296,7 +624,7 @@
         <div class="container">
             <a class="navbar-brand" href="index.html">
                 <i class="fas fa-leaf"></i>
-                小㘵村智能养生
+                健康小㘵
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -312,9 +640,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="ai-analysis.html"><i class="fas fa-brain"></i> AI分析</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.html"><i class="fas fa-info-circle"></i> 关于我们</a>
-                    </li>
                 </ul>
             </div>
         </div>
@@ -326,14 +651,14 @@
             <div class="row">
                 <div class="col-lg-10">
                     <div class="dual-text">
-                        <div class="dual-text-large">您的健康数据，</div>
-                        <div class="dual-text-small">一目了然。</div>
+                        <div class="dual-text-large typewriter-text" id="text1">您的健康数据，</div>
+                        <div class="dual-text-small typewriter-text" id="text2">一目了然。</div>
                     </div>
                     <div class="dual-text">
-                        <div class="dual-text-large">让数据说话，</div>
-                        <div class="dual-text-small">为健康护航。</div>
+                        <div class="dual-text-large typewriter-text" id="text3">让数据说话，</div>
+                        <div class="dual-text-small typewriter-text" id="text4">为健康护航。</div>
                     </div>
-                    <div class="hero-buttons mt-5">
+                    <div class="hero-buttons mt-5" id="heroButtons" style="opacity: 0;">
                         <a href="#data-overview" class="btn hero-button hero-button-primary">查看数据概览</a>
                         <a href="#trend-analysis" class="btn hero-button hero-button-secondary">趋势分析</a>
                     </div>
@@ -422,7 +747,7 @@
             <div class="row">
                 <div class="col-lg-4 mb-4">
                     <h5>关于我们</h5>
-                    <p>小㘵村智能养生平台，致力于通过先进技术为村民提供专业的健康管理服务。</p>
+                    <p>健康小㘵智能养生平台，致力于通过先进技术为村民提供专业的健康管理服务。</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-weixin"></i></a>
                         <a href="#"><i class="fab fa-weibo"></i></a>
@@ -435,127 +760,166 @@
                         <li><a href="index.html">首页</a></li>
                         <li><a href="health-data.html">健康数据</a></li>
                         <li><a href="ai-analysis.html">AI分析</a></li>
-                        <li><a href="about.html">关于我们</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4 mb-4">
                     <h5>联系我们</h5>
-                    <p><i class="fas fa-map-marker-alt me-2"></i> 广东省广州市小㘵村</p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i> 广东省广州市健康小㘵村</p>
                     <p><i class="fas fa-phone me-2"></i> 020-12345678</p>
                     <p><i class="fas fa-envelope me-2"></i> info@xiaobuhealth.com</p>
                     <p><i class="fas fa-clock me-2"></i> 周一至周日 9:00-18:00</p>
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2024 小㘵村智能养生. 保留所有权利.</p>
+                <p>&copy; 2024 健康小㘵智能养生. 保留所有权利.</p>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/nav-animation.js"></script>
     <script>
-        // 心率趋势图
-        const heartRateCtx = document.getElementById('heartRateChart').getContext('2d');
-        new Chart(heartRateCtx, {
-            type: 'line',
-            data: {
-                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-                datasets: [{
-                    label: '心率',
-                    data: [72, 75, 73, 76, 74, 78, 75],
-                    borderColor: '#4CAF50',
-                    tension: 0.4,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
+        document.addEventListener('DOMContentLoaded', function() {
+            // 打字机效果
+            const text1 = document.getElementById('text1');
+            const text2 = document.getElementById('text2');
+            const text3 = document.getElementById('text3');
+            const text4 = document.getElementById('text4');
+            const heroButtons = document.getElementById('heroButtons');
+            
+            function startTyping(element, delay, callback) {
+                setTimeout(() => {
+                    element.classList.add('typing');
+                    
+                    // 计算动画完成时间（基于文本长度）
+                    const textLength = element.textContent.length;
+                    const typingDuration = textLength * 100; // 每个字符约100ms
+                    
+                    setTimeout(() => {
+                        element.classList.remove('typing');
+                        element.classList.add('typing-done');
+                        if (callback) callback();
+                    }, typingDuration);
+                }, delay);
+            }
+            
+            // 依次启动打字动画
+            startTyping(text1, 500, function() {
+                startTyping(text2, 200, function() {
+                    startTyping(text3, 400, function() {
+                        startTyping(text4, 200, function() {
+                            // 所有文本显示完后，显示按钮
+                            setTimeout(() => {
+                                heroButtons.classList.add('fade-in');
+                            }, 300);
+                        });
+                    });
+                });
+            });
+            
+            // 心率趋势图
+            const heartRateCtx = document.getElementById('heartRateChart').getContext('2d');
+            new Chart(heartRateCtx, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '心率',
+                        data: [72, 75, 73, 76, 74, 78, 75],
+                        borderColor: '#4CAF50',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // 血压趋势图
-        const bloodPressureCtx = document.getElementById('bloodPressureChart').getContext('2d');
-        new Chart(bloodPressureCtx, {
-            type: 'line',
-            data: {
-                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-                datasets: [{
-                    label: '收缩压',
-                    data: [120, 118, 122, 119, 121, 123, 120],
-                    borderColor: '#4CAF50',
-                    tension: 0.4,
-                    fill: false
-                }, {
-                    label: '舒张压',
-                    data: [80, 78, 82, 79, 81, 83, 80],
-                    borderColor: '#2E7D32',
-                    tension: 0.4,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
+            // 血压趋势图
+            const bloodPressureCtx = document.getElementById('bloodPressureChart').getContext('2d');
+            new Chart(bloodPressureCtx, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '收缩压',
+                        data: [120, 118, 122, 119, 121, 123, 120],
+                        borderColor: '#4CAF50',
+                        tension: 0.4,
+                        fill: false
+                    }, {
+                        label: '舒张压',
+                        data: [80, 78, 82, 79, 81, 83, 80],
+                        borderColor: '#2E7D32',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // 步数趋势图
-        const stepsCtx = document.getElementById('stepsChart').getContext('2d');
-        new Chart(stepsCtx, {
-            type: 'bar',
-            data: {
-                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-                datasets: [{
-                    label: '步数',
-                    data: [7532, 8231, 7890, 8456, 8123, 9234, 8532],
-                    backgroundColor: '#4CAF50',
-                    borderColor: '#4CAF50',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
+            // 步数趋势图
+            const stepsCtx = document.getElementById('stepsChart').getContext('2d');
+            new Chart(stepsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '步数',
+                        data: [7532, 8231, 7890, 8456, 8123, 9234, 8532],
+                        backgroundColor: '#4CAF50',
+                        borderColor: '#4CAF50',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // 睡眠趋势图
-        const sleepCtx = document.getElementById('sleepChart').getContext('2d');
-        new Chart(sleepCtx, {
-            type: 'line',
-            data: {
-                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-                datasets: [{
-                    label: '睡眠时长',
-                    data: [7.2, 7.5, 7.0, 7.8, 7.3, 8.0, 7.5],
-                    borderColor: '#4CAF50',
-                    tension: 0.4,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
+            // 睡眠趋势图
+            const sleepCtx = document.getElementById('sleepChart').getContext('2d');
+            new Chart(sleepCtx, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '睡眠时长',
+                        data: [7.2, 7.5, 7.0, 7.8, 7.3, 8.0, 7.5],
+                        borderColor: '#4CAF50',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
-            }
+            });
         });
     </script>
 </body>
