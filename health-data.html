@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>健康小㘵 - 健康数据</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -134,6 +137,11 @@
             color: var(--primary-color);
         }
         
+        .nav-link.active i {
+            color: #ffffff;
+            transform: translateY(0);
+        }
+        
         /* Perspective Split Text Menu Animation 相关样式 */
         .nav-text-container {
             position: relative;
@@ -171,14 +179,6 @@
         .nav-link.perspective-active .nav-text.dynamic {
             transform: rotateX(0);
             opacity: 1;
-        }
-        
-        .nav-link i {
-            color: var(--primary-color);
-            font-size: 1.2rem;
-            width: 24px;
-            text-align: center;
-            transition: transform 0.3s ease;
         }
         
         .nav-link.perspective-active i {
@@ -564,6 +564,26 @@
             .footer h5 {
                 margin-bottom: 1rem;
             }
+            
+            /* 优化表单输入 */
+            input, select, textarea {
+                font-size: 16px !important; /* 防止iOS自动缩放 */
+            }
+            
+            /* 优化触摸反馈 */
+            .nav-link:active {
+                transform: scale(0.95);
+            }
+            
+            /* 禁用部分动画效果以提高性能 */
+            .nav-link::before {
+                display: none;
+            }
+            
+            .navbar-brand:hover,
+            .nav-link:hover {
+                transform: none;
+            }
         }
         
         /* 小屏幕手机优化 */
@@ -616,6 +636,23 @@
                 margin-bottom: 5px;
             }
         }
+        
+        /* 添加触摸反馈样式 */
+        .touch-feedback {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .touch-feedback:active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: inherit;
+        }
     </style>
 </head>
 <body>
@@ -659,13 +696,213 @@
                         <div class="dual-text-small typewriter-text" id="text4">为健康护航。</div>
                     </div>
                     <div class="hero-buttons mt-5" id="heroButtons" style="opacity: 0;">
-                        <a href="#data-overview" class="btn hero-button hero-button-primary">查看数据概览</a>
+                        <a href="#smart-band-intro" class="btn hero-button hero-button-primary">智能手环检测</a>
+                        <a href="#data-overview" class="btn hero-button hero-button-secondary">查看数据概览</a>
                         <a href="#trend-analysis" class="btn hero-button hero-button-secondary">趋势分析</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- 智能手环检测介绍 -->
+    <section id="smart-band-intro" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title">智能手环健康检测</h2>
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="p-4 bg-white rounded-3 shadow-sm">
+                        <h3 class="mb-4 text-primary"><i class="fas fa-heartbeat me-2"></i>全面健康监测</h3>
+                        <p class="lead mb-4">我们的智能手环采用先进的传感器技术，全天候监测您的健康指标，助您实时了解身体状况。</p>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                                        <i class="fas fa-heart text-success"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1">心率监测</h5>
+                                        <p class="small text-muted mb-0">实时监测心率变化</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-info bg-opacity-10 p-3 rounded-circle me-3">
+                                        <i class="fas fa-tint text-info"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1">血氧饱和度</h5>
+                                        <p class="small text-muted mb-0">监测血液含氧量</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
+                                        <i class="fas fa-running text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1">运动追踪</h5>
+                                        <p class="small text-muted mb-0">记录步数和消耗卡路里</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                                        <i class="fas fa-moon text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1">睡眠监测</h5>
+                                        <p class="small text-muted mb-0">分析睡眠质量和周期</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-4 bg-white rounded-3 shadow-sm">
+                        <h3 class="mb-4 text-primary"><i class="fas fa-microchip me-2"></i>先进技术与应用</h3>
+                        <p>我们的智能手环采用最新的光电容积脉搏波描记法(PPG)技术，通过发射特定波长的光线照射皮肤，然后测量反射光的变化来监测血流变化，从而实现心率、血氧等指标的精确监测。</p>
+                        
+                        <h5 class="mt-4 mb-3"><i class="fas fa-sync-alt me-2 text-success"></i>实时数据同步</h5>
+                        <p>智能手环可通过蓝牙技术与手机应用实时同步数据，让您随时查看健康指标，并根据历史数据分析健康趋势。</p>
+                        
+                        <h5 class="mt-4 mb-3"><i class="fas fa-bell me-2 text-warning"></i>健康预警功能</h5>
+                        <p>当检测到异常健康指标时，手环会及时提醒您注意，并提供相应的健康建议，帮助您及早发现潜在健康问题。</p>
+                        
+                        <div class="mt-4 text-center">
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#syncModal">
+                                <i class="fas fa-sync-alt me-2"></i>立即同步手环数据
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DeepSeek健康数据分析 -->
+    <section id="deepseek-analysis" class="py-5">
+        <div class="container">
+            <h2 class="section-title">DeepSeek健康数据分析</h2>
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="p-4 bg-white rounded-3 shadow-sm h-100">
+                        <h3 class="mb-4 text-primary"><i class="fas fa-robot me-2"></i>人工智能健康分析</h3>
+                        <p class="lead">借助DeepSeek大型语言模型，我们能够对您的健康数据进行深度分析，发现潜在的健康风险。</p>
+                        
+                        <div class="d-flex align-items-start mt-4">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                                <i class="fas fa-chart-line text-primary fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5>多维度数据整合</h5>
+                                <p>DeepSeek能够整合多种健康指标数据，如心率、血压、血氧、睡眠质量等，通过多维度分析，为您提供全面的健康状况评估。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-start mt-4">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3">
+                                <i class="fas fa-heartbeat text-success fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5>健康风险预测</h5>
+                                <p>基于历史数据和最新医学研究，DeepSeek能够预测潜在的健康风险，并提供针对性的预防建议，让您未雨绸缪。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-start mt-4">
+                            <div class="bg-info bg-opacity-10 p-3 rounded-3 me-3">
+                                <i class="fas fa-user-md text-info fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5>个性化健康建议</h5>
+                                <p>DeepSeek会根据您的个人健康数据和生活习惯，提供个性化的健康管理建议，帮助您保持最佳健康状态。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="p-4 bg-white rounded-3 shadow-sm h-100">
+                        <h3 class="mb-4 text-primary"><i class="fas fa-brain me-2"></i>DeepSeek技术优势</h3>
+                        <p>DeepSeek是一款领先的大型语言模型，在健康医疗领域具有深厚的知识储备和分析能力。</p>
+                        
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-database text-warning me-2"></i>海量医学知识库</h5>
+                                <p class="card-text">DeepSeek模型经过数百万篇医学文献、临床案例的训练，拥有丰富的医学知识储备，能够提供专业的健康分析和建议。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-shield-alt text-danger me-2"></i>隐私保护</h5>
+                                <p class="card-text">我们高度重视用户隐私，所有健康数据采用端到端加密技术，并严格遵守相关隐私法规，确保您的健康数据安全。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-sync-alt text-success me-2"></i>实时分析</h5>
+                                <p class="card-text">DeepSeek能够实时分析您的健康数据，及时发现异常变化，并提供快速反馈，让您随时掌握自己的健康状况。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button class="btn btn-primary" id="analyzeBtn">
+                                <i class="fas fa-search-plus me-2"></i>开始DeepSeek分析
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 手环同步模态框 -->
+    <div class="modal fade" id="syncModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-sync-alt me-2 text-success"></i>同步智能手环数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-bluetooth-b fa-3x text-primary mb-3"></i>
+                        <p>请确保您的手环已开启并处于蓝牙配对状态，然后点击"开始同步"按钮。</p>
+                    </div>
+                    <div class="d-flex justify-content-around mb-3">
+                        <div class="text-center">
+                            <div class="bg-light rounded-circle p-3 mb-2 mx-auto" style="width: 60px; height: 60px;">
+                                <i class="fas fa-heart fa-2x text-danger"></i>
+                            </div>
+                            <p class="small">心率数据</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-light rounded-circle p-3 mb-2 mx-auto" style="width: 60px; height: 60px;">
+                                <i class="fas fa-walking fa-2x text-success"></i>
+                            </div>
+                            <p class="small">运动数据</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-light rounded-circle p-3 mb-2 mx-auto" style="width: 60px; height: 60px;">
+                                <i class="fas fa-moon fa-2x text-primary"></i>
+                            </div>
+                            <p class="small">睡眠数据</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success">开始同步</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 数据概览 -->
     <section id="data-overview" class="py-5">
@@ -919,6 +1156,27 @@
                         }
                     }
                 }
+            });
+            
+            // 添加触摸事件支持
+            const clickableElements = document.querySelectorAll('a, button, .nav-link');
+            clickableElements.forEach(element => {
+                element.classList.add('touch-feedback');
+            });
+            
+            // 优化移动端滚动性能
+            if ('ontouchstart' in window) {
+                document.body.style.webkitOverflowScrolling = 'touch';
+            }
+            
+            // 优化表单输入
+            const inputs = document.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    setTimeout(() => {
+                        window.scrollTo(0, this.getBoundingClientRect().top + window.scrollY - 100);
+                    }, 100);
+                });
             });
         });
     </script>

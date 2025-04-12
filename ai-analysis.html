@@ -134,6 +134,11 @@
             color: var(--primary-color);
         }
         
+        .nav-link.active i {
+            color: #ffffff;
+            transform: translateY(0);
+        }
+        
         /* Perspective Split Text Menu Animation 相关样式 */
         .nav-text-container {
             position: relative;
@@ -171,14 +176,6 @@
         .nav-link.perspective-active .nav-text.dynamic {
             transform: rotateX(0);
             opacity: 1;
-        }
-        
-        .nav-link i {
-            color: var(--primary-color);
-            font-size: 1.2rem;
-            width: 24px;
-            text-align: center;
-            transition: transform 0.3s ease;
         }
         
         .nav-link.perspective-active i {
@@ -379,7 +376,7 @@
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            height: 600px;
+            height: 650px;
             display: flex;
             flex-direction: column;
         }
@@ -391,7 +388,7 @@
             margin-bottom: 20px;
             background-color: rgba(76, 175, 80, 0.05);
             border-radius: 10px;
-            max-height: 500px;
+            max-height: 550px;
         }
         
         .message {
@@ -800,7 +797,7 @@
             }
             
             .chat-messages {
-                max-height: 350px;
+                max-height: 400px;
                 padding: 10px;
             }
             
@@ -981,7 +978,7 @@
         <div class="container">
             <h2 class="section-title">AI健康问答</h2>
             <div class="row">
-                <div class="col-lg-10 mx-auto">
+                <div class="col-lg-12 mx-auto">
                     <div class="chat-container">
                         <div id="chatMessages" class="chat-messages">
                             <!-- AI欢迎消息 -->
