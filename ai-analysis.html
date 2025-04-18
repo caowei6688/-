@@ -428,6 +428,10 @@
             line-height: 1.6;
             margin-bottom: 10px;
             white-space: pre-line;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            overflow: visible;
         }
         
         .message-time {
@@ -543,43 +547,18 @@
             }
         }
         
-        /* 打字机效果样式 */
+        /* 打字机效果样式不再需要 */
         .typewriter-text {
-            position: relative;
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            width: 0;
-            border-right: 3px solid var(--primary-color);
-            animation: blinkCursor 0.8s step-end infinite;
-            opacity: 0;
+            display: block;
+            width: 100%;
         }
         
         .typewriter-text.typing {
-            animation: typingEffect 0.5s steps(40, end) forwards, blinkCursor 0.8s step-end infinite;
+            width: 100%;
         }
         
         .typewriter-text.typing-done {
             width: 100%;
-            border-right: none;
-            animation: none;
-            opacity: 1;
-        }
-        
-        @keyframes typingEffect {
-            from { 
-                width: 0;
-                opacity: 1;
-            }
-            to { 
-                width: 100%;
-                opacity: 1;
-            }
-        }
-        
-        @keyframes blinkCursor {
-            from, to { border-color: transparent }
-            50% { border-color: var(--primary-color) }
         }
         
         /* 按钮淡入动画 */
@@ -920,6 +899,31 @@
             .route-tags .badge {
                 margin-bottom: 5px;
                 font-size: 0.7rem;
+            }
+        }
+        
+        .message-chart-container {
+            width: 100%;
+            height: 220px;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 10px;
+            position: relative;
+        }
+        
+        .message-chart-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        @media (max-width: 576px) {
+            .message-chart-container {
+                height: 180px;
             }
         }
     </style>
@@ -1463,28 +1467,135 @@
                 const now = new Date();
                 const timeStr = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
                 
+                const messageId = Date.now();
+                const hasChart = message.includes('##CHART##');
+                let processedMessage = message;
+                let chartType = '';
+                let chartData = null;
+                
+                // 处理图表标记
+                if (hasChart) {
+                    const parts = message.split('##CHART##');
+                    processedMessage = parts[0];
+                    
+                    try {
+                        const chartInfo = JSON.parse(parts[1]);
+                        chartType = chartInfo.type;
+                        chartData = chartInfo.data;
+                    } catch (e) {
+                        console.error('图表数据解析错误', e);
+                    }
+                }
+                
                 messageElement.innerHTML = `
                     <div class="message-header">
                         <i class="fas fa-brain"></i>
                         <span>AI健康助手</span>
                     </div>
                     <div class="message-content">
-                        <div class="message-text typewriter-text">${message}</div>
+                        <div class="message-text" id="ai-message-${messageId}"></div>
+                        ${hasChart ? `<div class="message-chart-container mt-3">
+                            <div class="message-chart-title">${chartType === 'line' ? '趋势分析' : chartType === 'bar' ? '比较分析' : '数据分析'}</div>
+                            <canvas id="chart-${messageId}" width="300" height="200"></canvas>
+                        </div>` : ''}
                         <div class="message-time">${timeStr}</div>
                     </div>
                 `;
                 
                 chatMessages.appendChild(messageElement);
+                scrollToBottom();
                 
-                // 添加打字效果
-                const textElement = messageElement.querySelector('.typewriter-text');
-                textElement.classList.add('typing');
+                // 获取消息文本元素
+                const textElement = messageElement.querySelector('.message-text');
                 
-                setTimeout(() => {
-                    textElement.classList.remove('typing');
-                    textElement.classList.add('typing-done');
-                    scrollToBottom();
-                }, message.length * 20); // 根据文本长度计算动画时间
+                // 逐字显示文本
+                let i = 0;
+                const typingSpeed = 30; // 每个字符的毫秒数
+                let displayText = '';
+                
+                const typing = setInterval(() => {
+                    if (i < processedMessage.length) {
+                        displayText += processedMessage.charAt(i);
+                        textElement.textContent = displayText;
+                        i++;
+                        scrollToBottom();
+                    } else {
+                        clearInterval(typing);
+                        
+                        // 创建图表
+                        if (hasChart && chartData) {
+                            createChart(`chart-${messageId}`, chartType, chartData);
+                        }
+                    }
+                }, typingSpeed);
+            }
+            
+            // 创建图表函数
+            function createChart(canvasId, type, data) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                
+                const chartConfig = {
+                    type: type,
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: data.title,
+                            data: data.values,
+                            backgroundColor: type === 'line' ? 'rgba(76, 175, 80, 0.1)' : 
+                                data.values.map(() => 'rgba(76, 175, 80, 0.6)'),
+                            borderColor: 'rgba(76, 175, 80, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(76, 175, 80, 1)',
+                            pointBorderColor: '#fff',
+                            pointRadius: 4,
+                            fill: type === 'line',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                titleFont: {
+                                    size: 13
+                                },
+                                bodyFont: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: data.beginAtZero || false,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                
+                new Chart(ctx, chartConfig);
             }
             
             // 显示输入中动画
@@ -1530,396 +1641,180 @@
                 const lowerQuestion = question.toLowerCase();
                 
                 if (lowerQuestion.includes('睡眠质量')) {
-                    return '根据您近7天的睡眠数据，您的平均睡眠时间为6.2小时，略低于健康标准（7-8小时）。深度睡眠比例为18%，处于正常范围。建议您每天22:30前入睡，保持规律的作息时间，避免睡前使用电子设备。';
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '最近7天睡眠时长',
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            values: [5.8, 6.3, 6.5, 6.0, 5.9, 6.8, 6.1],
+                            beginAtZero: false
+                        }
+                    };
+                    
+                    return `根据您近7天的睡眠数据，您的平均睡眠时间为6.2小时，略低于健康标准（7-8小时）。深度睡眠比例为18%，处于正常范围。建议您每天22:30前入睡，保持规律的作息时间，避免睡前使用电子设备。##CHART##${JSON.stringify(chartData)}`;
                 } else if (lowerQuestion.includes('步数')) {
-                    return '您昨天的步数为8,756步，已达到每日推荐步数（8,000步）。过去一周您的平均步数为7,823步，周一和周五的活动量较低。建议您在工作日也保持适当的活动量，每小时起身活动5-10分钟。';
+                    const chartData = {
+                        type: 'bar',
+                        data: {
+                            title: '最近7天步数统计',
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            values: [6423, 7819, 8956, 8104, 6578, 9245, 7636],
+                            beginAtZero: true
+                        }
+                    };
+                    
+                    return `您昨天的步数为8,756步，已达到每日推荐步数（8,000步）。过去一周您的平均步数为7,823步，周一和周五的活动量较低。建议您在工作日也保持适当的活动量，每小时起身活动5-10分钟。##CHART##${JSON.stringify(chartData)}`;
                 } else if (lowerQuestion.includes('心率')) {
-                    return '您的静息心率平均为68次/分钟，处于正常范围（60-80次/分钟）。最近一周没有检测到异常心率事件。您的心率变异性指数为52，表明您的心血管健康状况良好。';
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '24小时心率变化',
+                            labels: ['0时', '3时', '6时', '9时', '12时', '15时', '18时', '21时'],
+                            values: [62, 58, 60, 72, 76, 74, 70, 68],
+                            beginAtZero: false
+                        }
+                    };
+                    
+                    return `您的静息心率平均为68次/分钟，处于正常范围（60-80次/分钟）。最近一周没有检测到异常心率事件。您的心率变异性指数为52，表明您的心血管健康状况良好。##CHART##${JSON.stringify(chartData)}`;
                 } else if (lowerQuestion.includes('压力')) {
-                    return '您的压力水平评分为65（中等偏高）。工作日的压力明显高于周末。建议您每天安排15-20分钟的冥想或深呼吸练习，有助于降低压力水平。也可以考虑在工作间隙进行短暂的伸展活动。';
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '一周压力水平变化',
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            values: [72, 68, 70, 75, 67, 55, 52],
+                            beginAtZero: false
+                        }
+                    };
+                    
+                    return `您的压力水平评分为65（中等偏高）。工作日的压力明显高于周末。建议您每天安排15-20分钟的冥想或深呼吸练习，有助于降低压力水平。也可以考虑在工作间隙进行短暂的伸展活动。##CHART##${JSON.stringify(chartData)}`;
                 } else if (lowerQuestion.includes('体重')) {
-                    return '您当前的体重指数(BMI)为23.5，处于正常范围（18.5-24.9）。过去一个月您的体重变化不大，波动在±0.5kg范围内，属于正常波动。建议您继续保持当前的饮食和运动习惯。';
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '近30天体重变化',
+                            labels: ['第1天', '第5天', '第10天', '第15天', '第20天', '第25天', '第30天'],
+                            values: [68.2, 68.4, 68.1, 67.9, 68.3, 68.0, 68.2],
+                            beginAtZero: false
+                        }
+                    };
+                    
+                    return `您当前的体重指数(BMI)为23.5，处于正常范围（18.5-24.9）。过去一个月您的体重变化不大，波动在±0.5kg范围内，属于正常波动。建议您继续保持当前的饮食和运动习惯。##CHART##${JSON.stringify(chartData)}`;
+                } else if (lowerQuestion.includes('血压') || lowerQuestion.includes('高血压')) {
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '一周血压监测',
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            values: [115, 118, 120, 117, 116, 113, 110],
+                            beginAtZero: false
+                        }
+                    };
+                    
+                    return `您的平均血压为118/78mmHg，处于理想范围内（120/80mmHg以下）。数据显示您的血压昼夜波动正常，未出现异常高值。建议您保持低盐饮食和规律运动，定期监测血压变化趋势。##CHART##${JSON.stringify(chartData)}`;
+                } else if (lowerQuestion.includes('血糖') || lowerQuestion.includes('糖尿病')) {
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '一天血糖变化曲线',
+                            labels: ['空腹', '早餐后', '午餐前', '午餐后', '晚餐前', '晚餐后', '睡前'],
+                            values: [5.2, 6.8, 5.0, 6.5, 5.1, 6.9, 5.5],
+                            beginAtZero: false
+                        }
+                    };
+                    
+                    return `您的空腹血糖平均值为5.2mmol/L，处于正常范围（3.9-6.1mmol/L）。餐后2小时血糖平均为6.8mmol/L，也在正常范围内。根据您的饮食记录，高碳水化合物摄入会导致血糖小幅波动，建议增加膳食纤维摄入，控制精制碳水化合物的比例。##CHART##${JSON.stringify(chartData)}`;
+                } else if (lowerQuestion.includes('饮食') || lowerQuestion.includes('营养') || lowerQuestion.includes('吃什么')) {
+                    const chartData = {
+                        type: 'bar',
+                        data: {
+                            title: '营养素摄入情况(%)',
+                            labels: ['蛋白质', '脂肪', '碳水', '膳食纤维', '维生素C', '钙'],
+                            values: [75, 85, 90, 60, 80, 65],
+                            beginAtZero: true
+                        }
+                    };
+                    
+                    return `分析您过去一周的饮食记录，蛋白质摄入略低（每日约0.6g/kg体重），膳食纤维摄入不足（平均每日15g）。建议增加优质蛋白质来源如鱼类、豆制品，多摄入深色蔬菜和全谷物。您的维生素D水平偏低，可适当增加阳光照射时间或咨询医生关于补充剂的建议。##CHART##${JSON.stringify(chartData)}`;
+                } else if (lowerQuestion.includes('运动') || lowerQuestion.includes('锻炼') || lowerQuestion.includes('健身')) {
+                    const chartData = {
+                        type: 'bar',
+                        data: {
+                            title: '每周运动分布(分钟)',
+                            labels: ['有氧运动', '力量训练', '柔韧性', '平衡性', '休息'],
+                            values: [150, 45, 30, 20, 120],
+                            beginAtZero: true
+                        }
+                    };
+                    
+                    return `根据您的活动数据，每周有氧运动时间约为150分钟，达到基本推荐标准，但缺乏足够的力量训练。建议每周增加2-3次力量训练，每次20-30分钟，关注大肌群训练如深蹲、俯卧撑等。同时，您的运动强度可以适当提高，目前心率储备利用率仅为40%左右。##CHART##${JSON.stringify(chartData)}`;
+                } else if (lowerQuestion.includes('水分') || lowerQuestion.includes('喝水')) {
+                    const chartData = {
+                        type: 'bar',
+                        data: {
+                            title: '每日饮水量(ml)',
+                            labels: ['早晨', '上午', '中午', '下午', '晚上', '睡前'],
+                            values: [250, 180, 300, 200, 220, 50],
+                            beginAtZero: true
+                        }
+                    };
+                    
+                    return `您的平均每日饮水量为1200ml，低于推荐的1500-2000ml。身体水分状态监测显示有轻度脱水迹象，尤其是在上午时段。建议设置饮水提醒，每小时饮用约200-250ml水，早晨起床后立即补充300ml水，有助于改善新陈代谢和肠道健康。##CHART##${JSON.stringify(chartData)}`;
+                } else if (lowerQuestion.includes('免疫') || lowerQuestion.includes('抵抗力')) {
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '免疫相关指标(%)',
+                            labels: ['白细胞', '淋巴细胞', '中性粒细胞', '单核细胞', 'NK细胞', '抗体水平'],
+                            values: [95, 92, 96, 93, 88, 90],
+                            beginAtZero: false
+                        }
+                    };
+                    
+                    return `您的免疫指标处于正常范围，但微量元素分析显示锌和维生素C摄入略低。过去三个月的健康记录显示有两次轻微上呼吸道感染，恢复时间略长于平均水平。建议增加富含维生素C的食物如柑橘类水果、猕猴桃，以及富含锌的食物如牡蛎、瘦肉和坚果，同时保证充足睡眠以增强免疫功能。##CHART##${JSON.stringify(chartData)}`;
+                } else if (lowerQuestion.includes('推荐') || lowerQuestion.includes('旅游路线') || lowerQuestion.includes('旅游建议')) {
+                    const chartData = {
+                        type: 'bar',
+                        data: {
+                            title: '路线健康匹配度(%)',
+                            labels: ['心脏健康路线', '改善睡眠路线', '健康饮食路线', '低强度运动路线', '森林疗法路线'],
+                            values: [85, 65, 75, 70, 80],
+                            beginAtZero: true
+                        }
+                    };
+                    
+                    return `基于您的健康数据，我为您推荐"心脏健康路线"，这条路线包含适度的坡度变化，有助于心肺功能锻炼。沿途森林氧吧的负氧离子浓度高，对改善心血管健康有益。根据您的步数记录和心率数据，建议在上午9-11点游览，每周2-3次，每次控制在1.5小时左右，注意途中补充足够的水分。##CHART##${JSON.stringify(chartData)}`;
+                } else if (lowerQuestion.includes('睡眠建议') || lowerQuestion.includes('失眠') || lowerQuestion.includes('如何睡得好')) {
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '睡眠周期分析(分钟)',
+                            labels: ['入睡时间', '浅睡期', 'REM睡眠', '深度睡眠', '睡眠中断'],
+                            values: [45, 180, 90, 70, 25],
+                            beginAtZero: true
+                        }
+                    };
+                    
+                    return `分析您的睡眠模式，入睡困难是主要问题（平均入睡时间45分钟）。建议：1）固定睡眠时间表，包括周末；2）睡前1小时关闭所有电子设备；3）睡前进行10分钟冥想或深呼吸练习；4）保持卧室温度在18-20°C；5）可尝试睡前饮用温热牛奶或薰衣草茶；6）考虑使用"改善睡眠路线"中的芳香疗法建议。##CHART##${JSON.stringify(chartData)}`;
                 } else {
-                    return '感谢您的提问。根据您的健康数据，我建议您保持规律的作息时间，每天保证7-8小时的睡眠，坚持适度运动，并注意饮食均衡。如需更具体的健康建议，请告诉我您关注的具体健康方面，如睡眠、运动、饮食等。';
+                    const chartData = {
+                        type: 'line',
+                        data: {
+                            title: '近7天健康综合评分',
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            values: [75, 78, 76, 74, 77, 82, 80],
+                            beginAtZero: false
+                        }
+                    };
+                    
+                    return `感谢您的提问。根据您的健康数据，我建议您保持规律的作息时间，每天保证7-8小时的睡眠，坚持适度运动，并注意饮食均衡。如需更具体的健康建议，请告诉我您关注的具体健康方面，如睡眠、运动、饮食等。##CHART##${JSON.stringify(chartData)}`;
                 }
             }
 
             // 旅游路线详情功能
             const routeButtons = document.querySelectorAll('.route-card .btn');
             const routeDetailModal = new bootstrap.Modal(document.getElementById('routeDetailModal'));
-            
-            // 路线数据
-            const routeData = [
-                {
-                    name: "心脏健康路线",
-                    type: "heart",
-                    color: "#4CAF50",
-                    bgColor: "#E8F5E9",
-                    description: "这条路线专为改善心血管健康设计，沿途设有多个休息站和心率监测点。路线穿过森林氧吧区，负氧离子含量高，有助于降低血压和改善心率变异性。缓坡设计确保有氧运动效果的同时不会造成过度负担。",
-                    features: [
-                        {icon: "fa-tree", text: "森林疗法", color: "success"},
-                        {icon: "fa-tint", text: "负氧离子区", color: "primary"},
-                        {icon: "fa-sun", text: "光照适宜", color: "warning"},
-                        {icon: "fa-heartbeat", text: "心率监测站", color: "danger"}
-                    ],
-                    benefits: [
-                        "根据您的心率数据，定期行走此路线可降低静息心率约3-5次/分钟",
-                        "有助于改善心肺功能和血液循环",
-                        "森林浴可降低压力激素皮质醇水平",
-                        "适度的坡度变化可增强心肌耐力"
-                    ],
-                    timing: "建议在早上9-11点或下午4-6点游览，此时温度适宜且负氧离子含量较高。根据您的健康数据，每周建议行走2-3次此路线。",
-                    pathData: "M20,80 C50,40 100,20 140,50 C180,80 180,40 160,30",
-                    markers: [
-                        { x: 50, y: 40, title: "森林氧吧", desc: "负氧离子含量高", icon: "树" },
-                        { x: 140, y: 50, title: "心率监测点", desc: "专业设备监测心率", icon: "心" },
-                        { x: 160, y: 30, title: "休息区", desc: "补充能量和休息", icon: "休" }
-                    ],
-                    distance: "3.5公里",
-                    elevation: [0, 5, 10, 20, 30, 35, 25, 15, 10, 5, 0] // 海拔数据（相对高度）
-                },
-                {
-                    name: "改善睡眠路线",
-                    type: "sleep",
-                    color: "#2196F3",
-                    bgColor: "#E3F2FD",
-                    description: "专为改善睡眠质量设计的路线，途经芳香植物园和水景区，环境安静且植被丰富。特别引入了有助于放松的薰衣草和柑橘植物，空气中的植物精油有助于缓解压力，促进优质睡眠。",
-                    features: [
-                        {icon: "fa-water", text: "溪流环绕", color: "info"},
-                        {icon: "fa-leaf", text: "薰衣草园", color: "success"},
-                        {icon: "fa-moon", text: "助眠环境", color: "secondary"},
-                        {icon: "fa-wind", text: "负离子瀑布", color: "primary"}
-                    ],
-                    benefits: [
-                        "根据您的睡眠数据，此路线的芳香疗法可帮助缩短入睡时间约15-20分钟",
-                        "水景区的白噪音有助于提高深度睡眠比例",
-                        "薰衣草精油具有科学验证的助眠效果",
-                        "傍晚漫步可促进褪黑素自然分泌"
-                    ],
-                    timing: "最佳游览时间为下午4点后至黄昏，此时植物精油释放量达到峰值，且有助于调整生物钟。建议睡前2-3小时完成行程。",
-                    pathData: "M20,50 C50,30 90,60 130,40 C170,20 180,40 180,70",
-                    markers: [
-                        { x: 50, y: 30, title: "芳香植物园", desc: "薰衣草精油助眠", icon: "香" },
-                        { x: 130, y: 40, title: "水景区", desc: "水流声助眠", icon: "水" },
-                        { x: 170, y: 60, title: "静谧区", desc: "冥想与放松", icon: "静" }
-                    ],
-                    distance: "2.8公里",
-                    elevation: [0, 3, 5, 8, 10, 12, 10, 8, 5, 3, 0] // 平缓路线
-                },
-                {
-                    name: "健康饮食路线",
-                    type: "food",
-                    color: "#FF9800",
-                    bgColor: "#FFF3E0",
-                    description: "结合您的饮食习惯和营养需求设计的美食之旅，路线包含有机农场、健康餐厅和食材市场。您可以参与食材采摘、了解健康饮食知识，并品尝符合您健康需求的特色美食。",
-                    features: [
-                        {icon: "fa-carrot", text: "有机农场", color: "warning"},
-                        {icon: "fa-utensils", text: "健康餐厅", color: "danger"},
-                        {icon: "fa-seedling", text: "采摘体验", color: "success"},
-                        {icon: "fa-apple-alt", text: "营养课堂", color: "primary"}
-                    ],
-                    benefits: [
-                        "根据您的健康数据，此路线推荐的饮食方案可改善血糖稳定性",
-                        "有机食材中的抗氧化物质有助于提升免疫力",
-                        "了解食材从种植到餐桌的全过程，建立健康饮食意识",
-                        "当季食材采摘有助于增加饮食多样性和营养密度"
-                    ],
-                    timing: "上午10点至下午2点是最佳游览时间，此时可观赏农场作业并参与采摘活动。周末有特别的烹饪课程，根据您的时间安排建议预约参加。",
-                    pathData: "M20,70 C60,60 80,20 130,30 C180,40 180,70 160,80",
-                    markers: [
-                        { x: 80, y: 25, title: "有机农场", desc: "健康种植体验", icon: "农" },
-                        { x: 130, y: 30, title: "健康餐厅", desc: "营养均衡餐饮", icon: "餐" },
-                        { x: 160, y: 75, title: "采摘区", desc: "亲手采摘食材", icon: "摘" }
-                    ],
-                    distance: "4.2公里",
-                    elevation: [0, 2, 5, 8, 12, 15, 18, 15, 10, 5, 0] // 起伏较小
-                }
-            ];
-            
-            // 为每个路线按钮添加点击事件
-            routeButtons.forEach((button, index) => {
-                button.addEventListener('click', function() {
-                    const route = routeData[index];
-                    
-                    // 填充模态框内容
-                    document.getElementById('routeDetailTitle').textContent = route.name;
-                    document.getElementById('routeDetailName').textContent = route.name;
-                    document.getElementById('routeDetailDesc').textContent = route.description;
-                    document.getElementById('routeDetailTiming').textContent = route.timing;
-                    
-                    // 设置路线标识
-                    const routeTypeBadge = document.getElementById('routeTypeBadge');
-                    routeTypeBadge.textContent = route.name;
-                    routeTypeBadge.style.backgroundColor = route.color;
-                    routeTypeBadge.style.color = '#fff';
-                    
-                    // 设置路线距离
-                    document.getElementById('routeDistance').textContent = route.distance;
-                    
-                    // 填充路线特点
-                    const featuresContainer = document.getElementById('routeDetailFeatures');
-                    featuresContainer.innerHTML = '';
-                    route.features.forEach(feature => {
-                        const featureElement = document.createElement('span');
-                        featureElement.className = `d-inline-block me-3 mb-2 text-${feature.color}`;
-                        featureElement.innerHTML = `<i class="fas ${feature.icon} me-1"></i> ${feature.text}`;
-                        featuresContainer.appendChild(featureElement);
-                    });
-                    
-                    // 填充健康益处
-                    const benefitsContainer = document.getElementById('routeDetailBenefits');
-                    benefitsContainer.innerHTML = '';
-                    route.benefits.forEach(benefit => {
-                        const benefitElement = document.createElement('li');
-                        benefitElement.className = 'mb-2';
-                        benefitElement.textContent = benefit;
-                        benefitsContainer.appendChild(benefitElement);
-                    });
-                    
-                    // 生成详情地图
-                    generateDetailMap(route);
-                    
-                    // 显示模态框
-                    routeDetailModal.show();
-                });
-            });
-            
-            // 生成详情地图
-            function generateDetailMap(route) {
-                const detailMap = document.getElementById('detailMap');
-                
-                // 清空现有内容
-                detailMap.innerHTML = '';
-                
-                // 设置背景
-                const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                background.setAttribute('width', '100%');
-                background.setAttribute('height', '100%');
-                background.setAttribute('fill', '#f5f5f5');
-                detailMap.appendChild(background);
-                
-                // 添加路线区域背景
-                const areaBackground = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                if (route.type === 'heart') {
-                    areaBackground.setAttribute('d', 'M30,80 C70,30 130,20 170,70');
-                    areaBackground.setAttribute('stroke', 'none');
-                    areaBackground.setAttribute('fill', route.bgColor);
-                    areaBackground.setAttribute('opacity', '0.5');
-                    areaBackground.setAttribute('transform', 'scale(1, 0.8)');
-                } else if (route.type === 'sleep') {
-                    areaBackground.setAttribute('d', 'M20,50 Q80,20 140,60 Q180,90 190,60');
-                    areaBackground.setAttribute('stroke', 'none');
-                    areaBackground.setAttribute('fill', route.bgColor);
-                    areaBackground.setAttribute('opacity', '0.5');
-                } else {
-                    // 食物路线背景为农田形状
-                    const farm1 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    farm1.setAttribute('x', '40');
-                    farm1.setAttribute('y', '20');
-                    farm1.setAttribute('width', '60');
-                    farm1.setAttribute('height', '40');
-                    farm1.setAttribute('rx', '5');
-                    farm1.setAttribute('ry', '5');
-                    farm1.setAttribute('fill', route.bgColor);
-                    farm1.setAttribute('opacity', '0.5');
-                    detailMap.appendChild(farm1);
-                    
-                    const farm2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    farm2.setAttribute('x', '120');
-                    farm2.setAttribute('y', '50');
-                    farm2.setAttribute('width', '60');
-                    farm2.setAttribute('height', '30');
-                    farm2.setAttribute('rx', '5');
-                    farm2.setAttribute('ry', '5');
-                    farm2.setAttribute('fill', route.bgColor);
-                    farm2.setAttribute('opacity', '0.5');
-                    detailMap.appendChild(farm2);
-                }
-                
-                if (route.type !== 'food') {
-                    detailMap.appendChild(areaBackground);
-                }
-                
-                // 添加路线路径
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('d', route.pathData);
-                path.setAttribute('class', `route-path ${route.type}-route`);
-                path.setAttribute('stroke', route.color);
-                detailMap.appendChild(path);
-                
-                // 添加标记点
-                route.markers.forEach(marker => {
-                    const markerGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                    markerGroup.setAttribute('class', `map-marker ${route.type}`);
-                    markerGroup.setAttribute('data-title', marker.title);
-                    markerGroup.setAttribute('data-desc', marker.desc);
-                    
-                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                    circle.setAttribute('cx', marker.x);
-                    circle.setAttribute('cy', marker.y);
-                    circle.setAttribute('r', '8');
-                    circle.setAttribute('stroke', route.color);
-                    
-                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('x', marker.x);
-                    text.setAttribute('y', marker.y);
-                    text.setAttribute('text-anchor', 'middle');
-                    text.setAttribute('alignment-baseline', 'middle');
-                    text.setAttribute('fill', route.color);
-                    text.textContent = marker.icon;
-                    
-                    markerGroup.appendChild(circle);
-                    markerGroup.appendChild(text);
-                    detailMap.appendChild(markerGroup);
-                    
-                    // 添加标记点悬停交互
-                    markerGroup.addEventListener('mouseenter', function() {
-                        const tooltip = document.querySelector('#routeDetailModal .map-tooltip');
-                        tooltip.innerHTML = `<strong>${marker.title}</strong><br>${marker.desc}`;
-                        tooltip.style.opacity = 1;
-                        
-                        // 计算位置
-                        const rect = detailMap.getBoundingClientRect();
-                        const containerRect = detailMap.parentElement.getBoundingClientRect();
-                        
-                        // 将SVG坐标转换为屏幕坐标
-                        const point = detailMap.createSVGPoint();
-                        point.x = marker.x;
-                        point.y = marker.y;
-                        const screenPoint = point.matrixTransform(detailMap.getScreenCTM());
-                        
-                        tooltip.style.left = (screenPoint.x - containerRect.left - tooltip.offsetWidth / 2) + 'px';
-                        tooltip.style.top = (screenPoint.y - containerRect.top - tooltip.offsetHeight - 15) + 'px';
-                    });
-                    
-                    markerGroup.addEventListener('mouseleave', function() {
-                        const tooltip = document.querySelector('#routeDetailModal .map-tooltip');
-                        tooltip.style.opacity = 0;
-                    });
-                });
-                
-                // 可以选择添加海拔图表
-                document.getElementById('toggleElevation').addEventListener('click', function() {
-                    const existingChart = detailMap.querySelector('.elevation-chart');
-                    
-                    if (existingChart) {
-                        // 如果已有图表，则删除
-                        existingChart.remove();
-                        this.innerHTML = '<i class="fas fa-mountain me-1"></i>显示海拔';
-                    } else {
-                        // 添加海拔图表
-                        const elevationData = route.elevation;
-                        const chartHeight = 30;
-                        const chartWidth = 160;
-                        const chartX = 20;
-                        const chartY = 90 - chartHeight;
-                        
-                        // 找出最大高度用于缩放
-                        const maxElevation = Math.max(...elevationData);
-                        
-                        // 创建图表组
-                        const chartGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                        chartGroup.setAttribute('class', 'elevation-chart');
-                        
-                        // 添加背景
-                        const chartBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                        chartBg.setAttribute('x', chartX);
-                        chartBg.setAttribute('y', chartY);
-                        chartBg.setAttribute('width', chartWidth);
-                        chartBg.setAttribute('height', chartHeight);
-                        chartBg.setAttribute('fill', 'rgba(255,255,255,0.8)');
-                        chartBg.setAttribute('rx', '3');
-                        chartGroup.appendChild(chartBg);
-                        
-                        // 创建海拔线路径
-                        let pathData = `M${chartX},${chartY + chartHeight}`;
-                        const step = chartWidth / (elevationData.length - 1);
-                        
-                        elevationData.forEach((height, index) => {
-                            const x = chartX + index * step;
-                            const y = chartY + chartHeight - (height / maxElevation * chartHeight);
-                            pathData += ` L${x},${y}`;
-                        });
-                        
-                        pathData += ` L${chartX + chartWidth},${chartY + chartHeight} Z`;
-                        
-                        const elevationPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        elevationPath.setAttribute('d', pathData);
-                        elevationPath.setAttribute('fill', route.bgColor);
-                        elevationPath.setAttribute('stroke', route.color);
-                        elevationPath.setAttribute('stroke-width', '1.5');
-                        chartGroup.appendChild(elevationPath);
-                        
-                        // 添加标题
-                        const chartTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                        chartTitle.setAttribute('x', chartX + 5);
-                        chartTitle.setAttribute('y', chartY + 10);
-                        chartTitle.setAttribute('font-size', '6');
-                        chartTitle.setAttribute('fill', '#666');
-                        chartTitle.textContent = '海拔变化图';
-                        chartGroup.appendChild(chartTitle);
-                        
-                        detailMap.appendChild(chartGroup);
-                        this.innerHTML = '<i class="fas fa-mountain me-1"></i>隐藏海拔';
-                    }
-                });
-                
-                // 添加比例尺
-                const scale = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                scale.setAttribute('class', 'map-scale');
-                scale.setAttribute('transform', 'translate(20, 20)');
-                
-                const scaleLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                scaleLine.setAttribute('x1', '0');
-                scaleLine.setAttribute('y1', '0');
-                scaleLine.setAttribute('x2', '50');
-                scaleLine.setAttribute('y2', '0');
-                scaleLine.setAttribute('stroke', '#666');
-                scaleLine.setAttribute('stroke-width', '2');
-                
-                const scaleText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                scaleText.setAttribute('x', '25');
-                scaleText.setAttribute('y', '10');
-                scaleText.setAttribute('text-anchor', 'middle');
-                scaleText.setAttribute('font-size', '8');
-                scaleText.setAttribute('fill', '#666');
-                scaleText.textContent = '1 km';
-                
-                scale.appendChild(scaleLine);
-                scale.appendChild(scaleText);
-                detailMap.appendChild(scale);
-                
-                // 添加指北针
-                const compass = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                compass.setAttribute('class', 'map-compass');
-                compass.setAttribute('transform', 'translate(170, 20)');
-                
-                const compassCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                compassCircle.setAttribute('cx', '0');
-                compassCircle.setAttribute('cy', '0');
-                compassCircle.setAttribute('r', '10');
-                compassCircle.setAttribute('fill', 'white');
-                compassCircle.setAttribute('stroke', '#666');
-                compassCircle.setAttribute('stroke-width', '1');
-                
-                const compassNeedle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                compassNeedle.setAttribute('d', 'M0,-8 L2,0 L0,8 L-2,0 Z');
-                compassNeedle.setAttribute('fill', '#666');
-                
-                const compassN = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                compassN.setAttribute('x', '0');
-                compassN.setAttribute('y', '-3');
-                compassN.setAttribute('text-anchor', 'middle');
-                compassN.setAttribute('font-size', '6');
-                compassN.setAttribute('fill', '#666');
-                compassN.textContent = 'N';
-                
-                compass.appendChild(compassCircle);
-                compass.appendChild(compassNeedle);
-                compass.appendChild(compassN);
-                detailMap.appendChild(compass);
-            }
         });
     </script>
 </body>
-</html> 
+</html>
